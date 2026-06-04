@@ -57,14 +57,21 @@ worker_prefetch_multiplier = 1
 worker_max_tasks_per_child = 100
 
 # ============================================================
-# QUEUE CONFIGURATION
+# QUEUE CONFIGURATION & DLQ
 # ============================================================
+DLX_NAME = "dlx"
+DLQ_NAME = "celery.dlq"
+
 # Định nghĩa các queue mặc định
 task_default_queue = "default"
 task_queues = {
     "default": {
         "exchange": "default",
         "routing_key": "default",
+        "queue_arguments": {
+            "x-dead-letter-exchange": DLX_NAME,
+            "x-dead-letter-routing-key": DLQ_NAME,
+        }
     },
     "high_priority": {
         "exchange": "high_priority",
@@ -74,4 +81,9 @@ task_queues = {
         "exchange": "low_priority",
         "routing_key": "low_priority",
     },
+    # Hàng đợi DLQ để chứa các task lỗi vượt quá số lần retry
+    DLQ_NAME: {
+        "exchange": DLX_NAME,
+        "routing_key": DLQ_NAME,
+    }
 }

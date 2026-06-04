@@ -53,18 +53,22 @@ pip install -r requirements.txt
 
 ### 5. Chạy Celery Worker
 ```bash
-celery -A core worker --loglevel=info
+# Đối với Windows (dùng thread pool để tránh lỗi PermissionError của prefork):
+.\venv\Scripts\celery.exe -A core.main worker --loglevel=info --pool=threads
+
+# Đối với Linux/macOS:
+celery -A core.main worker --loglevel=info
 ```
 
 ### 6. Chạy Flower Dashboard (giám sát)
 ```bash
-celery -A core flower --port=5555
+.\venv\Scripts\celery.exe -A core.main flower --port=5555
 # Truy cập: http://localhost:5555
 ```
 
 ### 7. Chạy FastAPI App
 ```bash
-uvicorn webapp.main:app --reload --port=8000
+.\venv\Scripts\uvicorn.exe webapp.main:app --reload --port=8000
 # Truy cập: http://localhost:8000/docs
 ```
 
@@ -89,7 +93,7 @@ celery-project/
 │   ├── tasks.py                # Task có lock
 │   └── demo.py                 # Script demo
 ├── feature2_dlq_alerting/      # Tính năng 2
-│   ├── dlq_handler.py          # Dead Letter Queue handler
+│   ├── dlq_consumer.py         # Dead Letter Queue consumer
 │   ├── alerting.py             # Slack/Email alerting
 │   ├── tasks.py                # Task với retry + DLQ
 │   └── demo.py                 # Script demo
