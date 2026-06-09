@@ -1,0 +1,1471 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Celery Distributed Task Queue Dashboard</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --panel-bg: rgba(17, 24, 39, 0.7);
+            --panel-border: rgba(255, 255, 255, 0.08);
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            
+            --celery-green: #31c48d;
+            --celery-glow: rgba(49, 196, 141, 0.4);
+            --async-purple: #8b5cf6;
+            --async-indigo: #6366f1;
+            --async-glow: rgba(139, 92, 246, 0.4);
+            --sync-red: #ef4444;
+            --sync-glow: rgba(239, 68, 68, 0.4);
+            
+            --status-pending: #f59e0b;
+            --status-success: #10b981;
+            --status-progress: #3b82f6;
+            --status-failure: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(139, 92, 246, 0.15) 0%, transparent 40%);
+            background-attachment: fixed;
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        /* HEADER SECTION */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            background: var(--panel-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--panel-border);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .brand-logo {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--celery-green), #057a55);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: #fff;
+            box-shadow: 0 0 15px var(--celery-glow);
+        }
+
+        .brand-title h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #fff, #9ca3af);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand-title p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+
+        .system-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(49, 196, 141, 0.1);
+            border: 1px solid rgba(49, 196, 141, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            color: var(--celery-green);
+            font-weight: 500;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--celery-green);
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 10px var(--celery-green);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(49, 196, 141, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(49, 196, 141, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(49, 196, 141, 0); }
+        }
+
+        /* GRID LAYOUT FOR METRICS AND LINKS */
+        .top-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: var(--panel-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--panel-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .card-header-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .icon-rabbitmq { background: rgba(247, 102, 43, 0.15); color: #ff6600; }
+        .icon-redis { background: rgba(220, 56, 47, 0.15); color: #dc382f; }
+        .icon-flower { background: rgba(238, 126, 169, 0.15); color: #ee7ea9; }
+
+        .card-title {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .card-value {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            word-break: break-all;
+        }
+
+        .card-link-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            text-decoration: none;
+            padding: 0.6rem 1rem;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s ease, border-color 0.2s ease;
+            margin-top: auto;
+        }
+
+        .card-link-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.25);
+        }
+
+        /* DEMO AND EXPERIMENT SECTION */
+        .main-section {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 900px) {
+            .main-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: var(--panel-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--panel-border);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .panel-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 1rem;
+        }
+
+        .panel-title i {
+            color: var(--async-purple);
+        }
+
+        /* FORM INPUTS */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.2rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .form-input {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 0.8rem 1rem;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s ease, background-color 0.2s ease;
+        }
+
+        .form-input:focus {
+            border-color: var(--async-indigo);
+            background-color: rgba(255, 255, 255, 0.08);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* ACTIONS PANEL */
+        .btn-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        @media (max-width: 600px) {
+            .btn-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            padding: 1rem;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            outline: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            color: #fff;
+        }
+
+        .btn-sync {
+            background: linear-gradient(135deg, var(--sync-red), #b91c1c);
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.2);
+        }
+
+        .btn-sync:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+            filter: brightness(1.1);
+        }
+
+        .btn-async {
+            background: linear-gradient(135deg, var(--async-purple), var(--async-indigo));
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.2);
+        }
+
+        .btn-async:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+            filter: brightness(1.1);
+        }
+
+        /* RESULT COMPARISON PANEL */
+        .comparison-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .metric-box {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 1.2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .metric-label-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .label-sync { color: var(--sync-red); }
+        .label-async { color: var(--async-purple); }
+
+        .metric-value-row {
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+
+        .bar-container {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .bar {
+            height: 100%;
+            width: 0%;
+            border-radius: 4px;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .bar-sync { background: var(--sync-red); box-shadow: 0 0 10px var(--sync-glow); }
+        .bar-async { background: var(--async-purple); box-shadow: 0 0 10px var(--async-glow); }
+
+        .speedup-card {
+            background: linear-gradient(135deg, rgba(49, 196, 141, 0.05) 0%, rgba(16, 185, 129, 0.1) 100%);
+            border: 1px solid rgba(49, 196, 141, 0.2);
+            border-radius: 16px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .speedup-title {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .speedup-value {
+            font-size: 2.25rem;
+            font-weight: 800;
+            color: var(--celery-green);
+            text-shadow: 0 0 20px var(--celery-glow);
+        }
+
+        /* TASKS PROGRESS TABLE PANEL */
+        .tasks-panel {
+            background: var(--panel-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--panel-border);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .tasks-table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.95rem;
+        }
+
+        th {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        td {
+            padding: 1.2rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            vertical-align: middle;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .task-id-cell {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.35rem 0.75rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-pending { background: rgba(245, 158, 11, 0.1); color: var(--status-pending); border: 1px solid rgba(245, 158, 11, 0.2); }
+        .badge-progress { background: rgba(59, 130, 246, 0.1); color: var(--status-progress); border: 1px solid rgba(59, 130, 246, 0.2); }
+        .badge-success { background: rgba(16, 185, 129, 0.1); color: var(--status-success); border: 1px solid rgba(16, 185, 129, 0.2); }
+        .badge-failure { background: rgba(239, 68, 68, 0.1); color: var(--status-failure); border: 1px solid rgba(239, 68, 68, 0.2); }
+
+        .batch-header-row {
+            background: rgba(139, 92, 246, 0.08) !important;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.2) !important;
+        }
+
+        .batch-header-cell {
+            padding: 0.8rem 1rem !important;
+            font-weight: 600;
+            color: var(--async-purple) !important;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* TAB STYLING FOR EXPERIMENT CHOOSER */
+        .tab-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-weight: 500;
+            padding: 0.6rem 1.2rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .tab-btn.active {
+            color: #fff !important;
+            background: linear-gradient(135deg, var(--async-purple), var(--async-indigo)) !important;
+            font-weight: 600;
+            box-shadow: 0 4px 12px var(--async-glow);
+        }
+
+        .progress-cell-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            min-width: 150px;
+        }
+
+        .progress-text {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .progress-bar-outer {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-bar-inner {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(to right, var(--async-purple), var(--async-indigo));
+            border-radius: 3px;
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .result-cell {
+            max-width: 250px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .result-cell.success { color: #34d399; }
+        .result-cell.failure { color: #f87171; }
+
+        /* LOG TERMINAL PANEL */
+        .terminal-panel {
+            background: #060913;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 14px;
+            padding: 1.2rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: #38bdf8;
+            max-height: 250px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.8);
+        }
+
+        .log-line {
+            line-height: 1.4;
+            white-space: pre-wrap;
+            border-left: 2px solid transparent;
+            padding-left: 0.5rem;
+        }
+
+        .log-line.system { border-color: var(--celery-green); color: var(--text-secondary); }
+        .log-line.sync { border-color: var(--sync-red); color: #fca5a5; }
+        .log-line.async { border-color: var(--async-purple); color: #c084fc; }
+        .log-line.success { border-color: var(--status-success); color: #34d399; }
+
+        footer {
+            margin-top: 1.5rem;
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        <!-- HEADER -->
+        <header>
+            <div class="brand">
+                <div class="brand-logo">
+                    <i class="fa-solid fa-leaf"></i>
+                </div>
+                <div class="brand-title">
+                    <h1>Celery Distributed System Dashboard</h1>
+                    <p>Ứng dụng quản lý hàng đợi và thực nghiệm hiệu năng</p>
+                </div>
+            </div>
+            <div class="system-status">
+                <span class="status-dot"></span>
+                <span>Hệ thống online</span>
+            </div>
+        </header>
+
+        <!-- TOP METRICS / QUICK LINKS -->
+        <div class="top-row">
+            <!-- Broker -->
+            <div class="card">
+                <div class="card-header-info">
+                    <span class="card-title">Message Broker (RabbitMQ)</span>
+                    <div class="card-icon icon-rabbitmq">
+                        <i class="fa-solid fa-envelope"></i>
+                    </div>
+                </div>
+                <div class="card-value">amqp://admin:***@localhost:5672</div>
+                <a href="http://localhost:15672" target="_blank" class="card-link-btn">
+                    <i class="fa-solid fa-gauge"></i> Mở RabbitMQ UI (admin)
+                </a>
+            </div>
+
+            <!-- Result Backend -->
+            <div class="card">
+                <div class="card-header-info">
+                    <span class="card-title">Result Backend (Redis)</span>
+                    <div class="card-icon icon-redis">
+                        <i class="fa-solid fa-database"></i>
+                    </div>
+                </div>
+                <div class="card-value">redis://localhost:6379/0</div>
+                <div class="card-link-btn" style="cursor: default; background: rgba(49, 196, 141, 0.05); color: var(--celery-green); border-color: rgba(49, 196, 141, 0.15)">
+                    <i class="fa-solid fa-circle-check"></i> Trạng thái: Hoạt động
+                </div>
+            </div>
+
+            <!-- Flower Monitor -->
+            <div class="card">
+                <div class="card-header-info">
+                    <span class="card-title">Celery Monitor (Flower)</span>
+                    <div class="card-icon icon-flower">
+                        <i class="fa-solid fa-chart-line"></i>
+                    </div>
+                </div>
+                <div class="card-value">port: 5555</div>
+                <a href="http://localhost:5555" target="_blank" class="card-link-btn">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i> Mở Flower Dashboard
+                </a>
+            </div>
+
+            <!-- Worker Manager Card -->
+            <div class="card" id="worker-manager-card">
+                <div class="card-header-info">
+                    <span class="card-title">Quản lý Celery Worker</span>
+                    <div class="card-icon" style="background: rgba(49, 196, 141, 0.15); color: var(--celery-green);" id="worker-manager-icon">
+                        <i class="fa-solid fa-square-poll-horizontal"></i>
+                    </div>
+                </div>
+                <div class="card-value" id="worker-manager-status">Đang tải...</div>
+                
+                <div style="display: flex; gap: 0.5rem; align-items: center; margin-top: 0.25rem;">
+                    <select id="worker-pool-select" class="form-input" style="padding: 0.4rem; font-size: 0.8rem; background: rgba(255,255,255,0.05); border-radius: 8px; flex: 1.5; color: var(--text-primary); border: 1px solid rgba(255,255,255,0.1);">
+                        <option value="solo" style="background: var(--bg-color);">Pool: Solo (C=1)</option>
+                        <option value="threads" style="background: var(--bg-color);">Pool: Threads</option>
+                    </select>
+                    <input type="number" id="worker-concurrency-input" class="form-input" style="padding: 0.4rem; font-size: 0.8rem; background: rgba(255,255,255,0.05); border-radius: 8px; flex: 1; text-align: center; color: var(--text-primary); border: 1px solid rgba(255,255,255,0.1);" min="1" max="8" value="4" disabled>
+                </div>
+                
+                <button id="btn-toggle-worker" class="card-link-btn" style="background: linear-gradient(135deg, var(--async-purple), var(--async-indigo)); border: none; font-weight: 600; color: #fff; display: flex; justify-content: center; align-items: center; gap: 0.5rem; width: 100%;">
+                    <i class="fa-solid fa-play"></i> Khởi động Worker
+                </button>
+            </div>
+        </div>
+
+        <!-- MAIN DEMO INTERFACE -->
+        <div class="main-section">
+            
+            <!-- DEMO CONTROL PANEL -->
+            <div class="panel">
+                <!-- Tab Headers -->
+                <div class="tabs-container" style="display: flex; gap: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.8rem; margin-bottom: 0.5rem;">
+                    <button class="tab-btn active" id="tab-tn1" onclick="switchTab('tn1')">
+                        <i class="fa-solid fa-gauge-high"></i> TN1: Sync vs Async
+                    </button>
+                    <button class="tab-btn" id="tab-tn23" onclick="switchTab('tn23')">
+                        <i class="fa-solid fa-gears"></i> TN2/3: Concurrency
+                    </button>
+                    <button class="tab-btn" id="tab-tn4" onclick="switchTab('tn4')">
+                        <i class="fa-solid fa-diagram-project"></i> TN4: Workflows
+                    </button>
+                </div>
+
+                <div class="panel-title" style="border: none; padding: 0; margin-bottom: 0.5rem;">
+                    <i class="fa-solid fa-rocket" id="panel-icon"></i>
+                    <h2 id="panel-header-title">Khởi tạo Tác vụ (Thực nghiệm 1 - TN1)</h2>
+                </div>
+
+                <!-- Form for TN1 & TN2/3 -->
+                <div class="form-grid" id="email-form-grid">
+                    <div class="form-group" style="display: grid; grid-template-columns: 3.5fr 1fr; gap: 1rem;">
+                        <div>
+                            <label class="form-label">Email Người nhận (Recipient)</label>
+                            <input type="email" id="email-recipient" class="form-input" style="width: 100%;" value="sinhvien_k23@gmail.com">
+                        </div>
+                        <div>
+                            <label class="form-label">Số lượng (Quantity)</label>
+                            <input type="number" id="email-quantity" class="form-input" style="width: 100%;" min="1" max="50" value="3">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Tiêu đề (Subject)</label>
+                        <input type="text" id="email-subject" class="form-input" value="Báo cáo bài tập lớn phân tán">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Nội dung Email (Body)</label>
+                        <textarea id="email-body" class="form-input form-textarea">Nội dung email giả lập gửi SMTP thông qua hệ thống phân tán Celery.</textarea>
+                    </div>
+                </div>
+
+                <!-- Form for TN4 -->
+                <div class="form-grid" id="workflow-form-grid" style="display: none; gap: 1rem; padding: 0.5rem 0;">
+                    <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6;">
+                        Thực nghiệm 4 (TN4) minh họa cách thiết kế quy trình xử lý tác vụ phức tạp (workflows) trong thực tế:
+                        <br><br>
+                        <strong>1. Group (Chạy song song nhiều tác vụ độc lập):</strong> Nhấn nút chạy để kích hoạt đồng thời 3 tác vụ xử lý ảnh độc lập (banner, avatar, thumbnail).
+                        <br><br>
+                        <strong>2. Chain (Chuỗi tác vụ tuần tự):</strong> Tạo báo cáo doanh số ngầm. Hệ thống tự động cập nhật tiến trình qua từng bước database/truy vấn/tính toán/xuất file PDF.
+                    </p>
+                </div>
+
+                <!-- Buttons for TN1 & TN2/3 -->
+                <div class="btn-container" id="email-btn-container">
+                    <button id="btn-run-sync" class="btn btn-sync">
+                        <i class="fa-solid fa-bolt"></i> Gửi Đồng bộ (Sync)
+                    </button>
+                    <button id="btn-run-async" class="btn btn-async">
+                        <i class="fa-solid fa-share-all"></i> Gửi Bất đồng bộ (Async)
+                    </button>
+                </div>
+
+                <!-- Buttons for TN4 -->
+                <div class="btn-container" id="workflow-btn-container" style="display: none;">
+                    <button id="btn-run-group" class="btn" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8); box-shadow: 0 4px 15px rgba(59, 130, 246, 0.2);">
+                        <i class="fa-solid fa-images"></i> Khởi chạy Group (Ảnh)
+                    </button>
+                    <button id="btn-run-chain" class="btn" style="background: linear-gradient(135deg, #10b981, #047857); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);">
+                        <i class="fa-solid fa-link"></i> Khởi chạy Chain (Báo cáo)
+                    </button>
+                </div>
+
+                <!-- Logs console inside control panel -->
+                <div style="margin-top: 0.5rem;">
+                    <div class="form-label" style="margin-bottom: 0.5rem; display:flex; justify-content:space-between;">
+                        <span>Terminal Output Logs:</span>
+                        <span style="cursor:pointer; color: #3b82f6;" onclick="clearLogs()">Clear</span>
+                    </div>
+                    <div id="terminal-logs" class="terminal-panel">
+                        <div class="log-line system">[Hệ thống] Sẵn sàng thực hiện kiểm thử hiệu năng. Hãy chọn một chế độ gửi ở trên.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PERFORMANCE COMPARISON -->
+            <div class="panel comparison-panel">
+                <div class="panel-title">
+                    <i class="fa-solid fa-stopwatch"></i>
+                    <h2>Thống kê tốc độ phản hồi</h2>
+                </div>
+
+                <!-- Sync Metric -->
+                <div class="metric-box">
+                    <div class="metric-label-row">
+                        <span class="label-sync"><i class="fa-solid fa-triangle-exclamation"></i> Chế độ Đồng bộ (Sync)</span>
+                        <span id="sync-status-text" style="color: var(--text-secondary)">Chưa chạy</span>
+                    </div>
+                    <div class="metric-value-row" id="sync-time">0.00 <span style="font-size: 1rem; font-weight:400; color:var(--text-secondary)">giây</span></div>
+                    <div class="bar-container">
+                        <div id="sync-bar" class="bar bar-sync"></div>
+                    </div>
+                </div>
+
+                <!-- Async Metric -->
+                <div class="metric-box">
+                    <div class="metric-label-row">
+                        <span class="label-async"><i class="fa-solid fa-bolt"></i> Chế độ Bất đồng bộ (Async)</span>
+                        <span id="async-status-text" style="color: var(--text-secondary)">Chưa chạy</span>
+                    </div>
+                    <div class="metric-value-row" id="async-time">0.00 <span style="font-size: 1rem; font-weight:400; color:var(--text-secondary)">giây</span></div>
+                    <div class="bar-container">
+                        <div id="async-bar" class="bar bar-async"></div>
+                    </div>
+                </div>
+                <!-- Worker Execution Metric (TN2 & TN3) -->
+                <div class="metric-box" style="border-color: rgba(49, 196, 141, 0.15); background: rgba(49, 196, 141, 0.02);">
+                    <div class="metric-label-row">
+                        <span style="color: var(--celery-green);"><i class="fa-solid fa-gears"></i> Hiệu năng xử lý của Worker (TN2 & TN3)</span>
+                        <span id="worker-status-text" style="color: var(--text-secondary)">Chưa chạy</span>
+                    </div>
+                    <div class="metric-value-row" id="worker-time">0.00 <span style="font-size: 1rem; font-weight:400; color:var(--text-secondary)">giây</span></div>
+                    <div style="font-size: 0.85rem; color: var(--text-secondary); display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+                        <span>Tốc độ xử lý thực tế:</span>
+                        <span id="worker-throughput" style="font-weight: 600; color: var(--text-primary);">0.00 tasks/s</span>
+                    </div>
+                    <div class="bar-container">
+                        <div id="worker-bar" class="bar" style="background: var(--celery-green); box-shadow: 0 0 10px var(--celery-glow); width: 0%;"></div>
+                    </div>
+                </div>
+                <!-- Speedup Metric -->
+                <div class="speedup-card">
+                    <div class="speedup-title">Hiệu quả cải thiện tốc độ phản hồi</div>
+                    <div class="speedup-value" id="speedup-value">0.00x</div>
+                    <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.25rem;">(API Response Time giảm thiểu)</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ASYNC TASKS TRACKING LIST -->
+        <div class="tasks-panel">
+            <div class="panel-title" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fa-solid fa-list-check" style="color: var(--celery-green)"></i>
+                    <h2>Theo dõi các tác vụ bất đồng bộ đang chạy ngầm</h2>
+                </div>
+                <button id="btn-clear-table" class="btn" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: var(--sync-red); border-radius: 8px; cursor: pointer; transition: all 0.3s ease;">
+                    <i class="fa-solid fa-trash-can"></i> Xóa lịch sử
+                </button>
+            </div>
+            
+            <div class="tasks-table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Mã Task ID</th>
+                            <th>Tác vụ</th>
+                            <th>Trạng thái</th>
+                            <th>Tiến độ xử lý</th>
+                            <th>Kết quả đầu ra</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tasks-table-body">
+                        <tr id="empty-table-row">
+                            <td colspan="5" style="text-align: center; color: var(--text-secondary); padding: 2rem;">
+                                Chưa có task bất đồng bộ nào được tạo. Hãy nhấn "Gửi Bất đồng bộ (Async)" để bắt đầu.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <footer>
+            <p>Bài tập lớn môn học: Ứng dụng Phân tán | Nhóm 2 | Lớp ƯDPT-N05</p>
+        </footer>
+    </div>
+
+    <!-- SCRIPT FOR CLIENT INTERACTION AND REALTIME POLLING -->
+    <script>
+        const API_BASE_URL = window.location.origin;
+        let activeTasks = new Set();
+        
+        let currentBatch = {
+            taskIds: new Set(),
+            startTime: 0,
+            total: 0,
+            finished: new Set(),
+            timerInterval: null
+        };
+
+        let syncExecutionTime = 0;
+        let asyncResponseTime = 0;
+
+        function log(message, type = 'system') {
+            const container = document.getElementById('terminal-logs');
+            const line = document.createElement('div');
+            line.className = `log-line ${type}`;
+            const time = new Date().toLocaleTimeString();
+            line.textContent = `[${time}] ${message}`;
+            container.appendChild(line);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function clearLogs() {
+            const container = document.getElementById('terminal-logs');
+            container.innerHTML = '<div class="log-line system">[Hệ thống] Trống.</div>';
+        }
+
+        function updateSpeedup() {
+            if (syncExecutionTime > 0 && asyncResponseTime > 0) {
+                const ratio = syncExecutionTime / asyncResponseTime;
+                document.getElementById('speedup-value').textContent = `${ratio.toFixed(2)}x`;
+                log(`Hệ số tăng tốc phản hồi (Response Time Speedup): Tăng gấp ${ratio.toFixed(2)} lần!`, 'success');
+            }
+        }
+
+        // EVENT RUN SYNCHRONOUS
+        document.getElementById('btn-run-sync').addEventListener('click', async () => {
+            const recipient = document.getElementById('email-recipient').value;
+            const subject = document.getElementById('email-subject').value;
+            const body = document.getElementById('email-body').value;
+            const quantity = parseInt(document.getElementById('email-quantity').value) || 1;
+            const btn = document.getElementById('btn-run-sync');
+
+            btn.disabled = true;
+            btn.style.opacity = '0.6';
+            document.getElementById('sync-status-text').textContent = 'Đang chạy...';
+            document.getElementById('sync-bar').style.width = '20%';
+            log(`Bắt đầu gửi ${quantity} email ĐỒNG BỘ (Sync)... Web API chính sẽ bị treo (blocked).`, 'sync');
+
+            try {
+                const startTime = performance.now();
+                
+                for (let i = 0; i < quantity; i++) {
+                    const t_start = performance.now();
+                    const url = `${API_BASE_URL}/api/sync/send-email?recipient=${encodeURIComponent(recipient)}&subject=${encodeURIComponent(`${subject} ${i+1}`)}&body=${encodeURIComponent(body)}`;
+                    
+                    const response = await fetch(url, { method: 'POST' });
+                    const data = await response.json();
+                    const t_elapsed = (performance.now() - t_start) / 1000;
+                    
+                    log(`   - [Sync] Đã gửi Email ${i+1}/${quantity} thành công sau ${t_elapsed.toFixed(4)} giây.`, 'success');
+                }
+                
+                const elapsedSeconds = (performance.now() - startTime) / 1000;
+
+                syncExecutionTime = elapsedSeconds;
+                document.getElementById('sync-time').innerHTML = `${elapsedSeconds.toFixed(3)} <span style="font-size: 1rem; font-weight:400; color:var(--text-secondary)">giây</span>`;
+                document.getElementById('sync-bar').style.width = '100%';
+                document.getElementById('sync-status-text').textContent = 'Thành công';
+                
+                log(`[Sync] Đã hoàn tất gửi ${quantity} email! Tổng thời gian phản hồi: ${elapsedSeconds.toFixed(4)} giây.`, 'success');
+                updateSpeedup();
+            } catch (error) {
+                log(`[Sync Error] Kết nối thất bại: ${error.message}`, 'sync');
+                document.getElementById('sync-status-text').textContent = 'Thất bại';
+                document.getElementById('sync-bar').style.width = '0%';
+            } finally {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+            }
+        });
+
+        // EVENT RUN ASYNCHRONOUS
+        document.getElementById('btn-run-async').addEventListener('click', async () => {
+            const recipient = document.getElementById('email-recipient').value;
+            const subject = document.getElementById('email-subject').value;
+            const body = document.getElementById('email-body').value;
+            const quantity = parseInt(document.getElementById('email-quantity').value) || 1;
+            const btn = document.getElementById('btn-run-async');
+
+            btn.disabled = true;
+            btn.style.opacity = '0.6';
+            document.getElementById('async-status-text').textContent = 'Đang gửi...';
+            document.getElementById('async-bar').style.width = '20%';
+            log(`Bắt đầu gửi ${quantity} email BẤT ĐỒNG BỘ (Async)... Các tin nhắn sẽ được đẩy vào RabbitMQ.`, 'async');
+
+            try {
+                const startTime = performance.now();
+                
+                // Gửi tất cả các task bất đồng bộ song song
+                const promises = [];
+                for (let i = 0; i < quantity; i++) {
+                    const url = `${API_BASE_URL}/api/async/send-email?recipient=${encodeURIComponent(recipient)}&subject=${encodeURIComponent(`${subject} ${i+1}`)}&body=${encodeURIComponent(body)}`;
+                    promises.push(fetch(url, { method: 'POST' }).then(res => res.json()));
+                }
+                
+                const results = await Promise.all(promises);
+                const elapsedSeconds = (performance.now() - startTime) / 1000;
+
+                asyncResponseTime = elapsedSeconds;
+                document.getElementById('async-time').innerHTML = `${elapsedSeconds.toFixed(4)} <span style="font-size: 1rem; font-weight:400; color:var(--text-secondary)">giây</span>`;
+                document.getElementById('async-bar').style.width = '100%';
+                document.getElementById('async-status-text').textContent = 'Đã phản hồi';
+                
+                log(`[Async] Đã phản hồi! Tổng thời gian gửi (Non-blocking): ${elapsedSeconds.toFixed(4)} giây.`, 'success');
+                
+                // Khởi tạo và theo dõi hiệu năng của Worker cho lượt chạy này
+                if (currentBatch.timerInterval) clearInterval(currentBatch.timerInterval);
+                currentBatch.taskIds = new Set(results.map(d => d.task_id));
+                currentBatch.startTime = performance.now();
+                currentBatch.total = quantity;
+                currentBatch.finished = new Set();
+                
+                document.getElementById('worker-status-text').textContent = `Đang xử lý (0/${quantity})...`;
+                document.getElementById('worker-time').innerHTML = `0.00 <span style="font-size: 1rem; font-weight:400; color:var(--text-secondary)">giây</span>`;
+                document.getElementById('worker-throughput').textContent = `0.00 tasks/s`;
+                document.getElementById('worker-bar').style.width = '0%';
+                
+                currentBatch.timerInterval = setInterval(() => {
+                    if (currentBatch.finished.size < currentBatch.total) {
+                        const elapsed = (performance.now() - currentBatch.startTime) / 1000;
+                        document.getElementById('worker-time').innerHTML = `${elapsed.toFixed(1)} <span style="font-size: 1rem; font-weight:400; color:var(--text-secondary)">giây</span>`;
+                    } else {
+                        clearInterval(currentBatch.timerInterval);
+                    }
+                }, 100);
+
+                // Thêm từng task vào bảng để theo dõi (theo thứ tự ngược để khi prepend sẽ xếp đúng thứ tự)
+                for (let i = results.length - 1; i >= 0; i--) {
+                    const data = results[i];
+                    log(`   - Đã ghim Task ${i+1}/${quantity} (ID: ${data.task_id}) vào hàng đợi.`, 'async');
+                    addTaskToTable(data.task_id, `Gửi Email ${i+1}/${quantity} (send_email_task)`);
+                }
+                
+                // Thêm hàng phân cách lượt chạy lên trên đầu
+                const tbody = document.getElementById('tasks-table-body');
+                const emptyRow = document.getElementById('empty-table-row');
+                if (emptyRow) emptyRow.remove();
+
+                const timeString = new Date().toLocaleTimeString();
+                const separatorRow = document.createElement('tr');
+                separatorRow.className = 'batch-header-row';
+                separatorRow.innerHTML = `
+                    <td colspan="5" class="batch-header-cell">
+                        <i class="fa-solid fa-layer-group"></i> Lượt chạy lúc ${timeString} — Gửi ${quantity} email
+                    </td>
+                `;
+                tbody.insertBefore(separatorRow, tbody.firstChild);
+                
+                updateSpeedup();
+            } catch (error) {
+                log(`[Async Error] Kết nối thất bại: ${error.message}`, 'async');
+                document.getElementById('async-status-text').textContent = 'Thất bại';
+                document.getElementById('async-bar').style.width = '0%';
+            } finally {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+            }
+        });
+
+        // TAB SWITCHER FOR EXPERIMENTS
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById('email-form-grid').style.display = 'none';
+            document.getElementById('workflow-form-grid').style.display = 'none';
+            document.getElementById('email-btn-container').style.display = 'none';
+            document.getElementById('workflow-btn-container').style.display = 'none';
+            
+            if (tab === 'tn1') {
+                document.getElementById('tab-tn1').classList.add('active');
+                document.getElementById('panel-header-title').textContent = 'Khởi tạo Tác vụ (Thực nghiệm 1 - TN1)';
+                document.getElementById('panel-icon').className = 'fa-solid fa-rocket';
+                
+                document.getElementById('email-form-grid').style.display = 'grid';
+                document.getElementById('email-btn-container').style.display = 'grid';
+                document.getElementById('btn-run-sync').style.display = 'inline-flex';
+                
+                document.getElementById('email-quantity').value = 3;
+            } 
+            else if (tab === 'tn23') {
+                document.getElementById('tab-tn23').classList.add('active');
+                document.getElementById('panel-header-title').textContent = 'Đo lường Hiệu năng Song song (Thực nghiệm 2 & 3 - TN2/3)';
+                document.getElementById('panel-icon').className = 'fa-solid fa-gears';
+                
+                document.getElementById('email-form-grid').style.display = 'grid';
+                document.getElementById('email-btn-container').style.display = 'grid';
+                
+                document.getElementById('btn-run-sync').style.display = 'none';
+                document.getElementById('email-quantity').value = 30;
+            } 
+            else if (tab === 'tn4') {
+                document.getElementById('tab-tn4').classList.add('active');
+                document.getElementById('panel-header-title').textContent = 'Thử nghiệm Celery Workflows (Thực nghiệm 4 - TN4)';
+                document.getElementById('panel-icon').className = 'fa-solid fa-diagram-project';
+                
+                document.getElementById('workflow-form-grid').style.display = 'grid';
+                document.getElementById('workflow-btn-container').style.display = 'grid';
+            }
+        }
+
+        // EVENT RUN GROUP WORKFLOW (TN4)
+        document.getElementById('btn-run-group').addEventListener('click', async () => {
+            const btn = document.getElementById('btn-run-group');
+            btn.disabled = true;
+            btn.style.opacity = '0.6';
+            log('Bắt đầu khởi chạy Group Workflow: Xử lý 3 ảnh song song...', 'async');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/workflow/group`, { method: 'POST' });
+                const data = await response.json();
+                const taskIds = data.task_ids;
+                
+                log(`[Group] Đã kích hoạt Group ID: ${data.group_id}. Có ${taskIds.length} tác vụ con.`, 'success');
+                
+                if (currentBatch.timerInterval) clearInterval(currentBatch.timerInterval);
+                currentBatch.taskIds = new Set(taskIds);
+                currentBatch.startTime = performance.now();
+                currentBatch.total = taskIds.length;
+                currentBatch.finished = new Set();
+                
+                document.getElementById('worker-status-text').textContent = `Đang xử lý (0/${taskIds.length})...`;
+                document.getElementById('worker-time').innerHTML = `0.00 <span style="font-size: 1rem; font-weight:400; color:var(--text-secondary)">giây</span>`;
+                document.getElementById('worker-throughput').textContent = `0.00 tasks/s`;
+                document.getElementById('worker-bar').style.width = '0%';
+                
+                currentBatch.timerInterval = setInterval(() => {
+                    if (currentBatch.finished.size < currentBatch.total) {
+                        const elapsed = (performance.now() - currentBatch.startTime) / 1000;
+                        document.getElementById('worker-time').innerHTML = `${elapsed.toFixed(1)} <span style="font-size: 1rem; font-weight:400; color:var(--text-secondary)">giây</span>`;
+                    } else {
+                        clearInterval(currentBatch.timerInterval);
+                    }
+                }, 100);
+
+                for (let i = taskIds.length - 1; i >= 0; i--) {
+                    addTaskToTable(taskIds[i], `Xử lý Ảnh ${i+1}/3 (process_image_task)`);
+                }
+                
+                const tbody = document.getElementById('tasks-table-body');
+                const emptyRow = document.getElementById('empty-table-row');
+                if (emptyRow) emptyRow.remove();
+
+                const timeString = new Date().toLocaleTimeString();
+                const separatorRow = document.createElement('tr');
+                separatorRow.className = 'batch-header-row';
+                separatorRow.innerHTML = `
+                    <td colspan="5" class="batch-header-cell" style="color: #3b82f6 !important; border-bottom-color: rgba(59, 130, 246, 0.2) !important;">
+                        <i class="fa-solid fa-layer-group"></i> Lượt chạy Group lúc ${timeString} — Xử lý 3 ảnh
+                    </td>
+                `;
+                tbody.insertBefore(separatorRow, tbody.firstChild);
+                
+            } catch (error) {
+                log(`[Group Error] Thất bại: ${error.message}`, 'sync');
+            } finally {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+            }
+        });
+
+        // EVENT RUN CHAIN WORKFLOW (TN4)
+        document.getElementById('btn-run-chain').addEventListener('click', async () => {
+            const btn = document.getElementById('btn-run-chain');
+            btn.disabled = true;
+            btn.style.opacity = '0.6';
+            log('Bắt đầu khởi chạy Chain Workflow: Tạo báo cáo Sales ngầm...', 'async');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/workflow/chain`, { method: 'POST' });
+                const data = await response.json();
+                const taskIds = data.task_ids;
+                
+                log(`[Chain] Đã kích hoạt Chain ID: ${data.chain_id}. Có ${taskIds.length} tác vụ nối tiếp.`, 'success');
+                
+                if (currentBatch.timerInterval) clearInterval(currentBatch.timerInterval);
+                currentBatch.taskIds = new Set(taskIds);
+                currentBatch.startTime = performance.now();
+                currentBatch.total = taskIds.length;
+                currentBatch.finished = new Set();
+                
+                document.getElementById('worker-status-text').textContent = `Đang xử lý (0/${taskIds.length})...`;
+                document.getElementById('worker-time').innerHTML = `0.00 <span style="font-size: 1rem; font-weight:400; color:var(--text-secondary)">giây</span>`;
+                document.getElementById('worker-throughput').textContent = `0.00 tasks/s`;
+                document.getElementById('worker-bar').style.width = '0%';
+                
+                currentBatch.timerInterval = setInterval(() => {
+                    if (currentBatch.finished.size < currentBatch.total) {
+                        const elapsed = (performance.now() - currentBatch.startTime) / 1000;
+                        document.getElementById('worker-time').innerHTML = `${elapsed.toFixed(1)} <span style="font-size: 1rem; font-weight:400; color:var(--text-secondary)">giây</span>`;
+                    } else {
+                        clearInterval(currentBatch.timerInterval);
+                    }
+                }, 100);
+
+                for (let i = taskIds.length - 1; i >= 0; i--) {
+                    addTaskToTable(taskIds[i], `Tạo Báo cáo Sales (generate_report_task)`);
+                }
+                
+                const tbody = document.getElementById('tasks-table-body');
+                const emptyRow = document.getElementById('empty-table-row');
+                if (emptyRow) emptyRow.remove();
+
+                const timeString = new Date().toLocaleTimeString();
+                const separatorRow = document.createElement('tr');
+                separatorRow.className = 'batch-header-row';
+                separatorRow.innerHTML = `
+                    <td colspan="5" class="batch-header-cell" style="color: #10b981 !important; border-bottom-color: rgba(16, 185, 129, 0.2) !important;">
+                        <i class="fa-solid fa-layer-group"></i> Lượt chạy Chain lúc ${timeString} — Tạo báo cáo ngầm
+                    </td>
+                `;
+                tbody.insertBefore(separatorRow, tbody.firstChild);
+                
+            } catch (error) {
+                log(`[Chain Error] Thất bại: ${error.message}`, 'sync');
+            } finally {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+            }
+        });
+
+        // ADD TASK ROW TO MONITORING TABLE
+        function addTaskToTable(taskId, taskType) {
+            const emptyRow = document.getElementById('empty-table-row');
+            if (emptyRow) emptyRow.remove();
+
+            const tbody = document.getElementById('tasks-table-body');
+            const row = document.createElement('tr');
+            row.id = `task-row-${taskId}`;
+            
+            row.innerHTML = `
+                <td class="task-id-cell">${taskId}</td>
+                <td><strong>${taskType}</strong></td>
+                <td><span id="badge-${taskId}" class="badge badge-pending"><i class="fa-solid fa-hourglass-start"></i> PENDING</span></td>
+                <td>
+                    <div class="progress-cell-container">
+                        <div class="progress-text">
+                            <span id="progress-step-${taskId}">Đang chờ trong queue...</span>
+                            <span id="progress-pct-${taskId}">0%</span>
+                        </div>
+                        <div class="progress-bar-outer">
+                            <div id="progress-bar-${taskId}" class="progress-bar-inner"></div>
+                        </div>
+                    </div>
+                </td>
+                <td id="result-${taskId}" class="result-cell">Đang đợi kết quả xử lý từ Redis...</td>
+            `;
+            
+            tbody.insertBefore(row, tbody.firstChild);
+            activeTasks.add(taskId);
+            pollTaskStatus(taskId);
+        }
+
+        // UPDATE BATCH PROGRESS FOR WORKER PERFORMANCE
+        function updateBatchProgress(taskId, success = true) {
+            if (currentBatch.taskIds.has(taskId) && !currentBatch.finished.has(taskId)) {
+                currentBatch.finished.add(taskId);
+                const finishedCount = currentBatch.finished.size;
+                const totalCount = currentBatch.total;
+                const pct = (finishedCount / totalCount) * 100;
+                
+                document.getElementById('worker-bar').style.width = `${pct}%`;
+                
+                const elapsed = (performance.now() - currentBatch.startTime) / 1000;
+                document.getElementById('worker-status-text').textContent = finishedCount === totalCount ? 'Hoàn thành' : `Đang xử lý (${finishedCount}/${totalCount})...`;
+                document.getElementById('worker-time').innerHTML = `${elapsed.toFixed(2)} <span style="font-size: 1rem; font-weight:400; color:var(--text-secondary)">giây</span>`;
+                document.getElementById('worker-throughput').textContent = `${(finishedCount / elapsed).toFixed(2)} tasks/s`;
+                
+                if (finishedCount === totalCount) {
+                    if (currentBatch.timerInterval) clearInterval(currentBatch.timerInterval);
+                    log(`[Worker] Đã hoàn thành toàn bộ batch ${totalCount} tasks ngầm sau ${elapsed.toFixed(3)} giây. Tốc độ trung bình: ${(totalCount / elapsed).toFixed(2)} tasks/s.`, 'success');
+                }
+            }
+        }
+
+        // REAL-TIME POLLING OF TASK STATUS FROM REDIS
+        function pollTaskStatus(taskId) {
+            const interval = setInterval(async () => {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/api/tasks/${taskId}/status`);
+                    const data = await response.json();
+                    
+                    const badge = document.getElementById(`badge-${taskId}`);
+                    const progressStep = document.getElementById(`progress-step-${taskId}`);
+                    const progressPct = document.getElementById(`progress-pct-${taskId}`);
+                    const progressBar = document.getElementById(`progress-bar-${taskId}`);
+                    const resultField = document.getElementById(`result-${taskId}`);
+
+                    if (data.status === 'PENDING') {
+                        badge.className = 'badge badge-pending';
+                        badge.innerHTML = '<i class="fa-solid fa-hourglass-start"></i> PENDING';
+                    } 
+                    else if (data.status === 'PROGRESS') {
+                        badge.className = 'badge badge-progress';
+                        badge.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> RUNNING';
+                        
+                        const meta = data.result || {};
+                        const pct = meta.progress || 0;
+                        const step = meta.step || 'Đang xử lý';
+                        
+                        progressPct.textContent = `${pct}%`;
+                        progressStep.textContent = step;
+                        progressBar.style.width = `${pct}%`;
+                    } 
+                    else if (data.status === 'SUCCESS') {
+                        badge.className = 'badge badge-success';
+                        badge.innerHTML = '<i class="fa-solid fa-circle-check"></i> SUCCESS';
+                        progressPct.textContent = '100%';
+                        progressStep.textContent = 'Đã hoàn thành';
+                        progressBar.style.width = '100%';
+                        progressBar.style.background = 'linear-gradient(to right, #10b981, #059669)';
+                        
+                        const res = data.result || {};
+                        resultField.className = 'result-cell success';
+                        resultField.innerHTML = `<i class="fa-solid fa-circle-info"></i> Xử lý xong trong ${res.processing_time_s || 0} giây. Status: ${res.status || 'Success'}`;
+                        
+                        log(`Tác vụ ngầm ${taskId} hoàn thành thành công!`, 'success');
+                        updateBatchProgress(taskId, true);
+                        clearInterval(interval);
+                        activeTasks.delete(taskId);
+                    } 
+                    else if (data.status === 'FAILURE') {
+                        badge.className = 'badge badge-failure';
+                        badge.innerHTML = '<i class="fa-solid fa-circle-xmark"></i> FAILURE';
+                        progressStep.textContent = 'Bị lỗi!';
+                        progressBar.style.width = '0%';
+                        
+                        resultField.className = 'result-cell failure';
+                        resultField.textContent = data.result || 'Có lỗi hệ thống xảy ra';
+                        
+                        log(`Tác vụ ngầm ${taskId} xử lý thất bại!`, 'sync');
+                        updateBatchProgress(taskId, false);
+                        clearInterval(interval);
+                        activeTasks.delete(taskId);
+                    }
+                } catch (error) {
+                    console.error('Error polling status:', error);
+                }
+            }, 1000);
+        }
+
+        // EVENT CLEAR TABLE
+        document.getElementById('btn-clear-table').addEventListener('click', () => {
+            const tbody = document.getElementById('tasks-table-body');
+            tbody.innerHTML = `
+                <tr id="empty-table-row">
+                    <td colspan="5" style="text-align: center; color: var(--text-secondary); padding: 2rem;">
+                        Chưa có task bất đồng bộ nào được tạo. Hãy nhấn "Gửi Bất đồng bộ (Async)" để bắt đầu.
+                    </td>
+                </tr>
+            `;
+            activeTasks.clear();
+            
+            // Reset worker metrics
+            if (currentBatch.timerInterval) clearInterval(currentBatch.timerInterval);
+            currentBatch.taskIds.clear();
+            currentBatch.finished.clear();
+            document.getElementById('worker-status-text').textContent = 'Chưa chạy';
+            document.getElementById('worker-time').innerHTML = `0.00 <span style="font-size: 1rem; font-weight:400; color:var(--text-secondary)">giây</span>`;
+            document.getElementById('worker-throughput').textContent = `0.00 tasks/s`;
+            document.getElementById('worker-bar').style.width = '0%';
+
+            log('Đã xóa danh sách theo dõi tác vụ và đặt lại chỉ số hiệu năng.', 'system');
+        });
+
+        // ============================================================
+        // CELERY WORKER PROCESS MANAGER UI LOGIC
+        // ============================================================
+        let isWorkerRunning = false;
+
+        async function checkWorkerStatus() {
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/worker/status`);
+                const data = await res.json();
+                
+                const statusText = document.getElementById('worker-manager-status');
+                const btn = document.getElementById('btn-toggle-worker');
+                const poolSelect = document.getElementById('worker-pool-select');
+                const concInput = document.getElementById('worker-concurrency-input');
+                const icon = document.getElementById('worker-manager-icon');
+                
+                if (data.status === 'running') {
+                    isWorkerRunning = true;
+                    statusText.textContent = `Online (${data.pool_type === 'solo' ? 'Solo' : 'Threads: ' + data.concurrency})`;
+                    statusText.style.color = 'var(--celery-green)';
+                    icon.style.background = 'rgba(49, 196, 141, 0.15)';
+                    icon.style.color = 'var(--celery-green)';
+                    
+                    // Cập nhật giá trị hiển thị trùng khớp
+                    poolSelect.value = data.pool_type;
+                    concInput.value = data.concurrency || 1;
+                    
+                    // Khóa form nhập liệu khi worker đang chạy
+                    poolSelect.disabled = true;
+                    concInput.disabled = true;
+                    
+                    btn.innerHTML = '<i class="fa-solid fa-stop"></i> Dừng Worker';
+                    btn.style.background = 'linear-gradient(135deg, var(--sync-red), #b91c1c)';
+                } else {
+                    isWorkerRunning = false;
+                    statusText.textContent = 'Offline (Đã dừng)';
+                    statusText.style.color = 'var(--text-secondary)';
+                    icon.style.background = 'rgba(255, 255, 255, 0.05)';
+                    icon.style.color = 'var(--text-secondary)';
+                    
+                    // Mở khóa form nhập liệu khi worker dừng
+                    poolSelect.disabled = false;
+                    concInput.disabled = poolSelect.value === 'solo';
+                    
+                    btn.innerHTML = '<i class="fa-solid fa-play"></i> Khởi động Worker';
+                    btn.style.background = 'linear-gradient(135deg, var(--async-purple), var(--async-indigo))';
+                }
+            } catch (err) {
+                console.error("Lỗi kiểm tra trạng thái worker:", err);
+            }
+        }
+
+        // Dropdown thay đổi cấu hình
+        document.getElementById('worker-pool-select').addEventListener('change', (e) => {
+            const val = e.target.value;
+            const concInput = document.getElementById('worker-concurrency-input');
+            if (val === 'solo') {
+                concInput.value = 1;
+                concInput.disabled = true;
+            } else {
+                concInput.value = 4;
+                concInput.disabled = false;
+            }
+        });
+
+        // Bấm nút khởi chạy/dừng worker
+        document.getElementById('btn-toggle-worker').addEventListener('click', async () => {
+            const btn = document.getElementById('btn-toggle-worker');
+            btn.disabled = true;
+            btn.style.opacity = '0.6';
+            
+            try {
+                if (isWorkerRunning) {
+                    log('Đang yêu cầu tắt Worker ngầm...', 'system');
+                    const res = await fetch(`${API_BASE_URL}/api/worker/stop`, { method: 'POST' });
+                    const data = await res.json();
+                    log('Đã tắt Worker thành công.', 'system');
+                } else {
+                    const pool = document.getElementById('worker-pool-select').value;
+                    const concurrency = parseInt(document.getElementById('worker-concurrency-input').value) || 1;
+                    log(`Đang yêu cầu khởi chạy Worker (${pool.toUpperCase()} - Concurrency: ${concurrency})...`, 'system');
+                    
+                    const res = await fetch(`${API_BASE_URL}/api/worker/start?pool_type=${pool}&concurrency=${concurrency}`, { method: 'POST' });
+                    const data = await res.json();
+                    
+                    if (data.status === 'success') {
+                        log(`Khởi động Worker thành công (PID: ${data.pid}).`, 'success');
+                    } else {
+                        log(`Khởi động Worker thất bại: ${data.message}`, 'sync');
+                    }
+                }
+                await checkWorkerStatus();
+            } catch (err) {
+                log(`Lỗi tương tác với Worker: ${err.message}`, 'sync');
+            } finally {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+            }
+        });
+
+        // Tự động kiểm tra trạng thái worker sau mỗi 3 giây
+        setInterval(checkWorkerStatus, 3000);
+        checkWorkerStatus();
+    </script>
+</body>
+</html>
