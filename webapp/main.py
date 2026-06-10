@@ -214,6 +214,23 @@ def trigger_chain():
 # ============================================================
 import subprocess
 import sys
+import os
+
+def kill_all_celery_workers():
+    """
+    Tìm và tiêu diệt triệt để tất cả các tiến trình Celery Worker đang chạy nền
+    để tránh xung đột cổng hoặc khóa tệp log.
+    """
+    try:
+        if os.name == 'nt':
+            # Sử dụng PowerShell để tìm và kết thúc các tiến trình chạy Celery worker
+            cmd = 'powershell -Command "Get-CimInstance Win32_Process -Filter \\"CommandLine like \'%celery%\' and CommandLine like \'%worker%\'\\" | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }"'
+            subprocess.run(cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        else:
+            # Trên Linux/Unix sử dụng pkill
+            subprocess.run(["pkill", "-f", "celery.*worker"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    except Exception:
+        pass
 
 class WorkerManager:
     def __init__(self):
@@ -223,11 +240,12 @@ class WorkerManager:
         self.log_file = "celery_worker_web.log"
 
     def start(self, pool_type: str, concurrency: int) -> dict:
-        # Stop existing first
-        if self.process and self.process.poll() is None:
-            self.stop()
-            
-        cmd = [sys.executable, "-m", "celery", "-A", "core.main", "worker", "--loglevel=info"]
+        # Dừng và dọn dẹp các worker cũ đang chạy nền (kể cả orphaned do reload)
+        self.stop()
+        kill_all_celery_workers()
+        
+        # Chạy Python ở chế độ không đệm (unbuffered -u) để log được ghi xuống đĩa ngay lập tức
+        cmd = [sys.executable, "-u", "-m", "celery", "-A", "core.main", "worker", "--loglevel=info"]
         
         if pool_type == "solo":
             cmd.extend(["--pool", "solo"])
@@ -236,13 +254,22 @@ class WorkerManager:
             
         try:
             if os.path.exists(self.log_file):
-                os.close(open(self.log_file, "a").close()) # release handle if any
                 os.remove(self.log_file)
         except Exception:
             pass
             
         try:
             log_f = open(self.log_file, "w", encoding="utf-8")
+        except Exception as e:
+            # Nếu tệp tin log bị khóa, fallback tạo tệp log ngẫu nhiên
+            try:
+                unique_log = f"celery_worker_web_{uuid.uuid4().hex[:8]}.log"
+                log_f = open(unique_log, "w", encoding="utf-8")
+                self.log_file = unique_log
+            except Exception:
+                log_f = open(os.devnull, "w")
+            
+        try:
             creation_flags = subprocess.CREATE_NEW_PROCESS_GROUP if os.name == 'nt' else 0
             self.process = subprocess.Popen(
                 cmd,
