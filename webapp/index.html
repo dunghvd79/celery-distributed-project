@@ -792,9 +792,14 @@
 
             <!-- PERFORMANCE COMPARISON -->
             <div class="panel comparison-panel">
-                <div class="panel-title">
-                    <i class="fa-solid fa-stopwatch"></i>
-                    <h2>Thống kê tốc độ phản hồi</h2>
+                <div class="panel-title" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fa-solid fa-stopwatch"></i>
+                        <h2 id="comparison-title-text">Thống kê tốc độ phản hồi</h2>
+                    </div>
+                    <div class="panel-header-actions">
+                        <span id="btn-reset-stats" style="cursor:pointer; color: #3b82f6; font-size: 0.85rem;" onclick="resetStats()">Reset</span>
+                    </div>
                 </div>
 
                 <!-- Sync Metric -->
@@ -914,6 +919,28 @@
         function clearLogs() {
             const container = document.getElementById('terminal-logs');
             container.innerHTML = '<div class="log-line system">[Hệ thống] Trống.</div>';
+        }
+
+        function resetStats(silent = false) {
+            syncExecutionTime = 0;
+            asyncResponseTime = 0;
+            
+            document.getElementById('sync-time').innerHTML = `0.00 <span style="font-size: 1rem; font-weight:400; color:var(--text-secondary)">giây</span>`;
+            document.getElementById('async-time').innerHTML = `0.00 <span style="font-size: 1rem; font-weight:400; color:var(--text-secondary)">giây</span>`;
+            document.getElementById('sync-status-text').textContent = 'Chưa chạy';
+            document.getElementById('async-status-text').textContent = 'Chưa chạy';
+            document.getElementById('sync-bar').style.width = '0%';
+            document.getElementById('async-bar').style.width = '0%';
+            document.getElementById('speedup-value').textContent = '0.00x';
+            
+            document.getElementById('worker-time').innerHTML = `0.00 <span style="font-size: 1rem; font-weight:400; color:var(--text-secondary)">giây</span>`;
+            document.getElementById('worker-status-text').textContent = 'Chưa chạy';
+            document.getElementById('worker-throughput').textContent = '0.00 tasks/s';
+            document.getElementById('worker-bar').style.width = '0%';
+            
+            if (!silent) {
+                log('Đã đặt lại tất cả chỉ số thống kê hiệu năng.', 'system');
+            }
         }
 
         function updateSpeedup() {
@@ -1070,21 +1097,7 @@
             document.getElementById('workflow-btn-container').style.display = 'none';
             
             // Đặt lại các biến đo lường và giao diện tránh dữ liệu cũ bị giữ lại
-            syncExecutionTime = 0;
-            asyncResponseTime = 0;
-            
-            document.getElementById('sync-time').innerHTML = `0.00 <span style="font-size: 1rem; font-weight:400; color:var(--text-secondary)">giây</span>`;
-            document.getElementById('async-time').innerHTML = `0.00 <span style="font-size: 1rem; font-weight:400; color:var(--text-secondary)">giây</span>`;
-            document.getElementById('sync-status-text').textContent = 'Chưa chạy';
-            document.getElementById('async-status-text').textContent = 'Chưa chạy';
-            document.getElementById('sync-bar').style.width = '0%';
-            document.getElementById('async-bar').style.width = '0%';
-            document.getElementById('speedup-value').textContent = '0.00x';
-            
-            document.getElementById('worker-time').innerHTML = `0.00 <span style="font-size: 1rem; font-weight:400; color:var(--text-secondary)">giây</span>`;
-            document.getElementById('worker-status-text').textContent = 'Chưa chạy';
-            document.getElementById('worker-throughput').textContent = '0.00 tasks/s';
-            document.getElementById('worker-bar').style.width = '0%';
+            resetStats(true);
 
             const syncLabel = document.querySelector('.label-sync');
             const asyncLabel = document.querySelector('.label-async');
