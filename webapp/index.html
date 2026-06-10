@@ -566,12 +566,10 @@
         }
 
         .result-cell {
-            max-width: 250px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            max-width: 380px;
             font-size: 0.85rem;
             color: var(--text-secondary);
+            line-height: 1.45;
         }
 
         .result-cell.success { color: #34d399; }
@@ -1415,9 +1413,20 @@
                         const meta = data.result || {};
                         const pct = meta.progress || 0;
                         const step = meta.step || 'Đang xử lý';
+                        const durations = meta.durations || {};
+                        
+                        let stepText = step;
+                        const completedSteps = Object.keys(durations);
+                        if (completedSteps.length > 0) {
+                            const details = completedSteps.map(k => {
+                                const short = k.replace(' database', ' DB').replace(' dữ liệu', '').replace(' thống kê', '').replace(' file', '');
+                                return `${short}: ${durations[k]}s`;
+                            }).join(', ');
+                            stepText = `${step} (Đã xong: ${details})`;
+                        }
                         
                         progressPct.textContent = `${pct}%`;
-                        progressStep.textContent = step;
+                        progressStep.textContent = stepText;
                         progressBar.style.width = `${pct}%`;
                     } 
                     else if (data.status === 'SUCCESS') {
@@ -1432,7 +1441,20 @@
                         currentBatch.taskTimes[taskId] = res.processing_time_s || 0;
                         
                         resultField.className = 'result-cell success';
-                        resultField.innerHTML = `<i class="fa-solid fa-circle-info"></i> Xử lý xong trong ${res.processing_time_s || 0} giây. Status: ${res.status || 'Success'}`;
+                        let outputHtml = `<i class="fa-solid fa-circle-info"></i> Xử lý xong trong <strong>${res.processing_time_s || 0} giây</strong>.`;
+                        
+                        // Nếu có thời gian chạy của từng bước thì hiển thị chi tiết
+                        if (res.step_durations) {
+                            const stepsHtml = Object.keys(res.step_durations).map(k => {
+                                const short = k.replace(' database', ' DB').replace(' dữ liệu', '').replace(' thống kê', '').replace(' file', '');
+                                return `<span style="display: inline-block; background: rgba(52, 211, 153, 0.1); color: #34d399; padding: 0.15rem 0.35rem; border-radius: 4px; font-size: 0.75rem; border: 1px solid rgba(52, 211, 153, 0.15); margin: 0.1rem 0.15rem 0.1rem 0;">${short}: <strong>${res.step_durations[k]}s</strong></span>`;
+                            }).join('');
+                            outputHtml += `<div style="margin-top: 0.35rem; display: flex; flex-wrap: wrap; gap: 0.2rem;">${stepsHtml}</div>`;
+                        } else {
+                            outputHtml += ` Status: ${res.status || 'Success'}`;
+                        }
+                        
+                        resultField.innerHTML = outputHtml;
                         
                         log(`Tác vụ ngầm ${taskId} hoàn thành thành công!`, 'success');
                         updateBatchProgress(taskId, true);

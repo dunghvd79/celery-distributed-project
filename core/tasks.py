@@ -136,25 +136,38 @@ def generate_report_task(self, report_type: str, start_date: str, end_date: str)
         end_date: Ngày kết thúc (YYYY-MM-DD)
     
     Returns:
-        dict: Thông tin báo cáo đã tạo
+        dict: Thông tin báo cáo đã tạo kèm thời gian chi tiết của các bước
     """
     try:
         t_start = time.perf_counter()
         logger.info(f"[REPORT] Đang tạo báo cáo {report_type} "
                    f"từ {start_date} đến {end_date}...")
         
-        # Cập nhật tiến trình (Celery task state)
-        self.update_state(state="PROGRESS", meta={"progress": 10, "step": "Kết nối database"})
-        time.sleep(random.uniform(0.5, 1.0))
+        durations = {}
         
-        self.update_state(state="PROGRESS", meta={"progress": 40, "step": "Truy vấn dữ liệu"})
+        # Bước 1: Kết nối database (10%)
+        self.update_state(state="PROGRESS", meta={"progress": 10, "step": "Kết nối database", "durations": dict(durations)})
+        t_step = time.perf_counter()
+        time.sleep(random.uniform(0.5, 1.0))
+        durations["Kết nối database"] = round(time.perf_counter() - t_step, 2)
+        
+        # Bước 2: Truy vấn dữ liệu (40%)
+        self.update_state(state="PROGRESS", meta={"progress": 40, "step": "Truy vấn dữ liệu", "durations": dict(durations)})
+        t_step = time.perf_counter()
         time.sleep(random.uniform(1.0, 3.0))
+        durations["Truy vấn dữ liệu"] = round(time.perf_counter() - t_step, 2)
         
-        self.update_state(state="PROGRESS", meta={"progress": 70, "step": "Tính toán thống kê"})
+        # Bước 3: Tính toán thống kê (70%)
+        self.update_state(state="PROGRESS", meta={"progress": 70, "step": "Tính toán thống kê", "durations": dict(durations)})
+        t_step = time.perf_counter()
         time.sleep(random.uniform(1.0, 2.0))
+        durations["Tính toán thống kê"] = round(time.perf_counter() - t_step, 2)
         
-        self.update_state(state="PROGRESS", meta={"progress": 90, "step": "Xuất file PDF"})
+        # Bước 4: Xuất file PDF (90%)
+        self.update_state(state="PROGRESS", meta={"progress": 90, "step": "Xuất file PDF", "durations": dict(durations)})
+        t_step = time.perf_counter()
         time.sleep(random.uniform(0.5, 1.0))
+        durations["Xuất file PDF"] = round(time.perf_counter() - t_step, 2)
         
         # Giả lập kết quả báo cáo
         total_records = random.randint(1000, 50000)
@@ -168,6 +181,7 @@ def generate_report_task(self, report_type: str, start_date: str, end_date: str)
             "output_file": f"reports/{report_type}_{start_date}_{end_date}.pdf",
             "file_size_kb": random.randint(50, 500),
             "processing_time_s": round(elapsed_time, 2),
+            "step_durations": durations,
             "task_id": self.request.id,
         }
         logger.info(f"[REPORT] ✅ Tạo xong báo cáo {report_type} "
