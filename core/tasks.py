@@ -139,6 +139,7 @@ def generate_report_task(self, report_type: str, start_date: str, end_date: str)
         dict: Thông tin báo cáo đã tạo
     """
     try:
+        t_start = time.perf_counter()
         logger.info(f"[REPORT] Đang tạo báo cáo {report_type} "
                    f"từ {start_date} đến {end_date}...")
         
@@ -157,6 +158,7 @@ def generate_report_task(self, report_type: str, start_date: str, end_date: str)
         
         # Giả lập kết quả báo cáo
         total_records = random.randint(1000, 50000)
+        elapsed_time = time.perf_counter() - t_start
         
         result = {
             "status": "completed",
@@ -165,10 +167,11 @@ def generate_report_task(self, report_type: str, start_date: str, end_date: str)
             "total_records": total_records,
             "output_file": f"reports/{report_type}_{start_date}_{end_date}.pdf",
             "file_size_kb": random.randint(50, 500),
+            "processing_time_s": round(elapsed_time, 2),
             "task_id": self.request.id,
         }
         logger.info(f"[REPORT] ✅ Tạo xong báo cáo {report_type} "
-                   f"({total_records} records)")
+                   f"({total_records} records) trong {elapsed_time:.2f}s")
         return result
 
     except Exception as exc:

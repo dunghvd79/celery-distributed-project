@@ -346,6 +346,41 @@ def stop_worker():
 def get_worker_status():
     return worker_mgr.get_status()
 
+
+@app.get("/api/worker/stats")
+def get_worker_stats():
+    """
+    Truy vấn trực tiếp qua Celery Inspect để lấy Uptime, PID và thống kê
+    số lượng tác vụ của từng tiến trình worker đang chạy.
+    """
+    try:
+        celery_app.set_current()
+        celery_app.set_default()
+        
+        # Thiết lập timeout ngắn để tránh API bị treo nếu không có worker nào online
+        insp = celery_app.control.inspect(timeout=0.8)
+        stats = insp.stats()
+        
+        if not stats:
+            return {"online": False, "message": "Không tìm thấy worker hoạt động"}
+            
+        workers_data = []
+        for worker_name, info in stats.items():
+            workers_data.append({
+                "name": worker_name,
+                "pid": info.get("pid"),
+                "uptime": info.get("uptime"),
+                "pool": info.get("pool", {}),
+                "total": info.get("total", {})
+            })
+            
+        return {
+            "online": True,
+            "workers": workers_data
+        }
+    except Exception as e:
+        return {"online": False, "error": str(e)}
+
 @app.get("/api/worker/logs")
 def get_worker_logs(lines: int = Query(50)):
     return {"logs": worker_mgr.get_logs(lines)}

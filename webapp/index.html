@@ -699,6 +699,24 @@
                 <button id="btn-toggle-worker" class="card-link-btn" style="background: linear-gradient(135deg, var(--async-purple), var(--async-indigo)); border: none; font-weight: 600; color: #fff; display: flex; justify-content: center; align-items: center; gap: 0.5rem; width: 100%;">
                     <i class="fa-solid fa-play"></i> Khởi động Worker
                 </button>
+
+                <!-- Chi tiết tiến trình Worker -->
+                <div id="worker-details-panel" style="display: none; margin-top: 0.75rem; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 0.75rem; font-size: 0.8rem; color: var(--text-secondary); flex-direction: column; gap: 0.4rem;">
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>Mã tiến trình (PID):</span>
+                        <span id="worker-pid" style="color: var(--text-primary); font-family: 'JetBrains Mono', monospace; font-weight: 600;">-</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>Thời gian hoạt động (Uptime):</span>
+                        <span id="worker-uptime" style="color: var(--celery-green); font-weight: 600;">-</span>
+                    </div>
+                    <div style="margin-top: 0.2rem; font-weight: 600; color: var(--text-primary); display: flex; justify-content: space-between;">
+                        <span>Tác vụ đã xử lý:</span>
+                    </div>
+                    <div id="worker-tasks-breakdown" style="display: flex; flex-direction: column; gap: 0.2rem; padding-left: 0.5rem; font-family: 'JetBrains Mono', monospace;">
+                        <!-- Thống kê task hiển thị tại đây -->
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -1470,6 +1488,73 @@
         // ============================================================
         let isWorkerRunning = false;
 
+        function formatUptime(seconds) {
+            if (!seconds) return '0 giây';
+            const h = Math.floor(seconds / 3600);
+            const m = Math.floor((seconds % 3600) / 60);
+            const s = Math.floor(seconds % 60);
+            
+            let res = [];
+            if (h > 0) res.push(`${h} giờ`);
+            if (m > 0) res.push(`${m} phút`);
+            if (s > 0 || res.length === 0) res.push(`${s} giây`);
+            return res.join(' ');
+        }
+
+        async function updateWorkerStats() {
+            if (!isWorkerRunning) {
+                document.getElementById('worker-details-panel').style.display = 'none';
+                return;
+            }
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/worker/stats`);
+                const data = await res.json();
+                
+                const detailsPanel = document.getElementById('worker-details-panel');
+                if (data.online && data.workers && data.workers.length > 0) {
+                    detailsPanel.style.display = 'flex';
+                    
+                    // Lấy worker đầu tiên (trong demo chỉ chạy 1 worker chính)
+                    const worker = data.workers[0];
+                    document.getElementById('worker-pid').textContent = worker.pid || '-';
+                    document.getElementById('worker-uptime').textContent = formatUptime(worker.uptime);
+                    
+                    const breakdown = document.getElementById('worker-tasks-breakdown');
+                    breakdown.innerHTML = '';
+                    
+                    const tasks = worker.total || {};
+                    const taskKeys = Object.keys(tasks);
+                    if (taskKeys.length === 0) {
+                        breakdown.innerHTML = '<div style="font-style: italic; color: var(--text-secondary); font-size: 0.75rem;">Chưa có tác vụ nào hoàn thành</div>';
+                    } else {
+                        taskKeys.forEach(taskName => {
+                            const shortName = taskName.split('.').pop(); // Lấy tên task ngắn gọn
+                            const count = tasks[taskName];
+                            
+                            const item = document.createElement('div');
+                            item.style.display = 'flex';
+                            item.style.justify = 'space-between';
+                            item.style.alignItems = 'center';
+                            item.style.fontSize = '0.75rem';
+                            item.innerHTML = `
+                                <span>- ${shortName}:</span>
+                                <span style="font-weight: 600; color: var(--text-primary);">${count}</span>
+                            `;
+                            breakdown.appendChild(item);
+                        });
+                    }
+                } else {
+                    // Nếu worker đang chạy nhưng stats chưa kịp phản hồi
+                    detailsPanel.style.display = 'flex';
+                    document.getElementById('worker-pid').textContent = '-';
+                    document.getElementById('worker-uptime').textContent = 'Đang kết nối...';
+                    document.getElementById('worker-tasks-breakdown').innerHTML = '<div style="font-style: italic; color: var(--text-secondary); font-size: 0.75rem;">Đang tải thống kê...</div>';
+                }
+            } catch (err) {
+                console.error("Lỗi lấy stats worker:", err);
+            }
+        }
+
         async function checkWorkerStatus() {
             try {
                 const res = await fetch(`${API_BASE_URL}/api/worker/status`);
@@ -1498,6 +1583,9 @@
                     
                     btn.innerHTML = '<i class="fa-solid fa-stop"></i> Dừng Worker';
                     btn.style.background = 'linear-gradient(135deg, var(--sync-red), #b91c1c)';
+                    
+                    // Cập nhật stats ngay lập tức
+                    await updateWorkerStats();
                 } else {
                     isWorkerRunning = false;
                     statusText.textContent = 'Offline (Đã dừng)';
@@ -1511,6 +1599,8 @@
                     
                     btn.innerHTML = '<i class="fa-solid fa-play"></i> Khởi động Worker';
                     btn.style.background = 'linear-gradient(135deg, var(--async-purple), var(--async-indigo))';
+                    
+                    document.getElementById('worker-details-panel').style.display = 'none';
                 }
             } catch (err) {
                 console.error("Lỗi kiểm tra trạng thái worker:", err);
