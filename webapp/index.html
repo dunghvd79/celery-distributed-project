@@ -724,15 +724,18 @@
             <!-- DEMO CONTROL PANEL -->
             <div class="panel">
                 <!-- Tab Headers -->
-                <div class="tabs-container" style="display: flex; gap: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.8rem; margin-bottom: 0.5rem;">
+                <div class="tabs-container" style="display: flex; gap: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.8rem; margin-bottom: 0.5rem; flex-wrap: wrap;">
                     <button class="tab-btn active" id="tab-tn1" onclick="switchTab('tn1')">
                         <i class="fa-solid fa-gauge-high"></i> TN1: Sync vs Async
                     </button>
                     <button class="tab-btn" id="tab-tn23" onclick="switchTab('tn23')">
                         <i class="fa-solid fa-gears"></i> TN2/3: Concurrency
                     </button>
-                    <button class="tab-btn" id="tab-tn4" onclick="switchTab('tn4')">
-                        <i class="fa-solid fa-diagram-project"></i> TN4: Workflows
+                    <button class="tab-btn" id="tab-tn4-group" onclick="switchTab('tn4_group')">
+                        <i class="fa-solid fa-images"></i> TN4.1: Group (Song song)
+                    </button>
+                    <button class="tab-btn" id="tab-tn4-chain" onclick="switchTab('tn4_chain')">
+                        <i class="fa-solid fa-link"></i> TN4.2: Chain (Tuần tự)
                     </button>
                 </div>
 
@@ -763,14 +766,27 @@
                     </div>
                 </div>
 
-                <!-- Form for TN4 -->
-                <div class="form-grid" id="workflow-form-grid" style="display: none; gap: 1rem; padding: 0.5rem 0;">
+                <!-- Form for TN4.1 Group -->
+                <div class="form-grid" id="workflow-group-form-grid" style="display: none; gap: 1rem; padding: 0.5rem 0;">
                     <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6;">
-                        Thực nghiệm 4 (TN4) minh họa cách thiết kế quy trình xử lý tác vụ phức tạp (workflows) trong thực tế:
+                        <strong>Thực nghiệm 4.1 (TN4.1) - Celery Group Workflow:</strong>
+                        <br>Chứng minh khả năng gom nhóm các tác vụ độc lập chạy <strong>song song</strong> trên nhiều worker threads để tối ưu hóa thời gian xử lý tổng thể.
                         <br><br>
-                        <strong>1. Group (Chạy song song nhiều tác vụ độc lập):</strong> Nhấn nút chạy để kích hoạt đồng thời 3 tác vụ xử lý ảnh độc lập (banner, avatar, thumbnail).
+                        Hệ thống sẽ kích hoạt đồng thời 3 tác vụ xử lý ảnh độc lập:
+                        <br>- <code>banner.png</code> (1920x1080)
+                        <br>- <code>avatar.png</code> (200x200)
+                        <br>- <code>thumbnail.png</code> (400x300)
+                    </p>
+                </div>
+
+                <!-- Form for TN4.2 Chain -->
+                <div class="form-grid" id="workflow-chain-form-grid" style="display: none; gap: 1rem; padding: 0.5rem 0;">
+                    <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6;">
+                        <strong>Thực nghiệm 4.2 (TN4.2) - Celery Chain Workflow:</strong>
+                        <br>Chứng minh khả năng liên kết các tác vụ <strong>tuần tự</strong>, tạo thành một chuỗi quy trình nghiệp vụ logic khép kín (đầu ra của tác vụ này làm đầu vào tác vụ tiếp theo).
                         <br><br>
-                        <strong>2. Chain (Chuỗi tác vụ tuần tự):</strong> Tạo báo cáo doanh số ngầm. Hệ thống tự động cập nhật tiến trình qua từng bước database/truy vấn/tính toán/xuất file PDF.
+                        Hệ thống sẽ kích hoạt chuỗi tạo báo cáo doanh số ngầm và cập nhật tiến trình qua từng bước nhỏ:
+                        <br><code>Kết nối DB (10%)</code> &rarr; <code>Truy vấn (40%)</code> &rarr; <code>Tính toán (70%)</code> &rarr; <code>Xuất PDF (90%)</code> &rarr; <code>SUCCESS (100%)</code>.
                     </p>
                 </div>
 
@@ -784,13 +800,17 @@
                     </button>
                 </div>
 
-                <!-- Buttons for TN4 -->
-                <div class="btn-container" id="workflow-btn-container" style="display: none;">
+                <!-- Buttons for TN4.1 Group -->
+                <div class="btn-container" id="workflow-group-btn-container" style="display: none; grid-template-columns: 1fr;">
                     <button id="btn-run-group" class="btn" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8); box-shadow: 0 4px 15px rgba(59, 130, 246, 0.2);">
-                        <i class="fa-solid fa-images"></i> Khởi chạy Group (Ảnh)
+                        <i class="fa-solid fa-images"></i> Khởi chạy Group (Xử lý ảnh song song)
                     </button>
+                </div>
+
+                <!-- Buttons for TN4.2 Chain -->
+                <div class="btn-container" id="workflow-chain-btn-container" style="display: none; grid-template-columns: 1fr;">
                     <button id="btn-run-chain" class="btn" style="background: linear-gradient(135deg, #10b981, #047857); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);">
-                        <i class="fa-solid fa-link"></i> Khởi chạy Chain (Báo cáo)
+                        <i class="fa-solid fa-link"></i> Khởi chạy Chain (Chuỗi báo cáo tuần tự)
                     </button>
                 </div>
 
@@ -1108,9 +1128,11 @@
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             
             document.getElementById('email-form-grid').style.display = 'none';
-            document.getElementById('workflow-form-grid').style.display = 'none';
+            document.getElementById('workflow-group-form-grid').style.display = 'none';
+            document.getElementById('workflow-chain-form-grid').style.display = 'none';
             document.getElementById('email-btn-container').style.display = 'none';
-            document.getElementById('workflow-btn-container').style.display = 'none';
+            document.getElementById('workflow-group-btn-container').style.display = 'none';
+            document.getElementById('workflow-chain-btn-container').style.display = 'none';
             
             // Đặt lại các biến đo lường và giao diện tránh dữ liệu cũ bị giữ lại
             resetStats(true);
@@ -1162,22 +1184,39 @@
                 speedupTitle.textContent = 'Hiệu quả cải thiện tốc độ phản hồi';
                 speedupSub.textContent = '(API Response Time giảm thiểu)';
             } 
-            else if (tab === 'tn4') {
-                activeTab = 'tn4';
-                document.getElementById('tab-tn4').classList.add('active');
-                document.getElementById('panel-header-title').textContent = 'Thử nghiệm Celery Workflows (Thực nghiệm 4 - TN4)';
-                document.getElementById('panel-icon').className = 'fa-solid fa-diagram-project';
+            else if (tab === 'tn4_group') {
+                activeTab = 'tn4_group';
+                document.getElementById('tab-tn4-group').classList.add('active');
+                document.getElementById('panel-header-title').textContent = 'Thử nghiệm Group Workflow (Thực nghiệm 4.1 - TN4.1)';
+                document.getElementById('panel-icon').className = 'fa-solid fa-images';
                 
-                document.getElementById('workflow-form-grid').style.display = 'grid';
-                document.getElementById('workflow-btn-container').style.display = 'grid';
+                document.getElementById('workflow-group-form-grid').style.display = 'grid';
+                document.getElementById('workflow-group-btn-container').style.display = 'grid';
 
-                // Cập nhật nhãn thống kê cho phù hợp với Workflow
-                panelTitle.textContent = 'Thống kê hiệu năng Workflows';
+                // Cập nhật nhãn thống kê cho Group
+                panelTitle.textContent = 'Hiệu năng xử lý Group (Song song)';
                 syncLabel.innerHTML = '<i class="fa-solid fa-list-ol"></i> Xử lý Tuần tự (Giả lập)';
-                asyncLabel.innerHTML = '<i class="fa-solid fa-network-wired"></i> Xử lý Song song (Workflows)';
-                if (workerTitle) workerTitle.innerHTML = '<i class="fa-solid fa-gears"></i> Hiệu năng xử lý của Worker (TN4)';
+                asyncLabel.innerHTML = '<i class="fa-solid fa-network-wired"></i> Xử lý Song song (Group)';
+                if (workerTitle) workerTitle.innerHTML = '<i class="fa-solid fa-gears"></i> Hiệu năng xử lý của Worker (TN4.1)';
                 speedupTitle.textContent = 'Hệ số tăng tốc xử lý (Speedup)';
                 speedupSub.textContent = '(Tối ưu hóa thời gian xử lý)';
+            }
+            else if (tab === 'tn4_chain') {
+                activeTab = 'tn4_chain';
+                document.getElementById('tab-tn4-chain').classList.add('active');
+                document.getElementById('panel-header-title').textContent = 'Thử nghiệm Chain Workflow (Thực nghiệm 4.2 - TN4.2)';
+                document.getElementById('panel-icon').className = 'fa-solid fa-link';
+                
+                document.getElementById('workflow-chain-form-grid').style.display = 'grid';
+                document.getElementById('workflow-chain-btn-container').style.display = 'grid';
+
+                // Cập nhật nhãn thống kê cho Chain
+                panelTitle.textContent = 'Hiệu năng xử lý Chain (Tuần tự)';
+                syncLabel.innerHTML = '<i class="fa-solid fa-bolt"></i> Xử lý Trực tiếp (Giả lập)';
+                asyncLabel.innerHTML = '<i class="fa-solid fa-link"></i> Xử lý qua Queue (Celery Chain)';
+                if (workerTitle) workerTitle.innerHTML = '<i class="fa-solid fa-gears"></i> Hiệu năng xử lý của Worker (TN4.2)';
+                speedupTitle.textContent = 'Hệ số hiệu quả (Speedup)';
+                speedupSub.textContent = '(Bao gồm chi phí overhead của Queue)';
             }
         }
 
@@ -1354,8 +1393,8 @@
                     if (currentBatch.timerInterval) clearInterval(currentBatch.timerInterval);
                     log(`[Worker] Đã hoàn thành toàn bộ batch ${totalCount} tasks ngầm sau ${elapsed.toFixed(3)} giây. Tốc độ trung bình: ${(totalCount / elapsed).toFixed(2)} tasks/s.`, 'success');
                     
-                    // Cập nhật thống kê hiệu năng cho TN4
-                    if (activeTab === 'tn4') {
+                    // Cập nhật thống kê hiệu năng cho TN4 (Group & Chain)
+                    if (activeTab === 'tn4_group' || activeTab === 'tn4_chain') {
                         let sequentialTime = 0;
                         for (const tid of currentBatch.taskIds) {
                             sequentialTime += currentBatch.taskTimes[tid] || 0;
@@ -1363,7 +1402,7 @@
                         
                         // Nếu thời gian bằng 0 (ví dụ: task bị lỗi hoặc không lưu được), dùng giá trị ước tính hợp lý
                         if (sequentialTime === 0) {
-                            if (totalCount === 3) { // Group (Xử lý 3 ảnh)
+                            if (activeTab === 'tn4_group') { // Group (Xử lý 3 ảnh)
                                 sequentialTime = 9.5; 
                             } else { // Chain
                                 sequentialTime = elapsed; // Chain chạy tuần tự nên song song = tuần tự
@@ -1383,7 +1422,12 @@
                         
                         const speedup = sequentialTime / parallelTime;
                         document.getElementById('speedup-value').textContent = `${speedup.toFixed(2)}x`;
-                        log(`[Workflow Performance] Xử lý song song nhanh gấp ${speedup.toFixed(2)} lần so với tuần tự!`, 'success');
+                        
+                        if (activeTab === 'tn4_group') {
+                            log(`[Workflow Performance] Xử lý song song nhanh gấp ${speedup.toFixed(2)} lần so với tuần tự!`, 'success');
+                        } else {
+                            log(`[Workflow Performance] Chạy qua Celery Chain đạt hiệu quả ${speedup.toFixed(2)}x so với chạy trực tiếp (bao gồm overhead).`, 'success');
+                        }
                     }
                 }
             }
