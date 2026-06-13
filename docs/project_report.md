@@ -150,3 +150,18 @@ Dự án đã giải quyết triệt để bài toán xử lý tác vụ tốn t
 * Tích hợp cơ chế **Auto-scaling Workers**: Tự động tăng/giảm số lượng tiến trình Worker dựa trên tải trọng của hàng đợi tin nhắn trong RabbitMQ.
 * Áp dụng **Rate Limiting** nâng cao trên Celery để giới hạn số lượng cuộc gọi đến API của bên thứ ba, tránh bị chặn (banned/throttled).
 * Tích hợp **Prometheus & Grafana** để trực quan hóa hiệu năng của các Worker core theo thời gian thực thay vì sử dụng Flower cơ bản.
+
+---
+
+## 7. BẢNG PHÂN CÔNG NHIỆM VỤ VÀ ĐÓNG GÓP THÀNH VIÊN
+
+Dưới đây là bảng phân công công việc mẫu cho các thành viên trong nhóm dựa trên các cấu phần kỹ thuật thực tế của dự án. Bạn có thể thay thế tên thành viên và điều chỉnh phần trăm đóng góp cho phù hợp:
+
+| STT | Họ và Tên | Vai trò | Nhiệm vụ chi tiết đã thực hiện | Mức độ hoàn thành | Đóng góp (%) |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| 1 | **Thành viên A** (Trưởng nhóm) | Backend & Infrastructure | - Cấu hình và thiết lập môi trường Docker (RabbitMQ, Redis).<br>- Khởi tạo Celery Core và cấu hình định tuyến hàng đợi (`celeryconfig.py`).<br>- Triển khai các API FastAPI (Producer) để khởi chạy và kiểm tra trạng thái tác vụ.<br>- Viết báo cáo kỹ thuật. | Hoàn thành tốt | 100% (Hoặc 34%) |
+| 2 | **Thành viên B** | Frontend & UI/UX | - Thiết kế giao diện Dashboard sáng, hiện đại và tối giản.<br>- Viết JavaScript đồng bộ hóa trạng thái tiến độ (`PROGRESS`) và thanh phần trăm của tác vụ thời gian thực.<br>- Triển khai cơ chế đồng bộ và giải mã nhật ký hệ thống (Logs) của Worker lên giao diện Web. | Hoàn thành tốt | 100% (Hoặc 33%) |
+| 3 | **Thành viên C** | Logic & Error Handling | - Triển khai cơ chế Khóa phân tán (Distributed Lock) trên Redis nhằm loại bỏ lỗi tranh chấp tài nguyên (Race Condition).<br>- Xây dựng kịch bản hàng đợi thư chết (Dead Letter Queue - DLQ) và kết nối API cảnh báo lỗi tự động.<br>- Chạy thử nghiệm hiệu năng (benchmark) và tổng hợp số liệu thực tế. | Hoàn thành tốt | 100% (Hoặc 33%) |
+
+---
+
