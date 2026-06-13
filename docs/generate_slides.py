@@ -15,11 +15,11 @@ def create_presentation():
     prs.slide_width = Inches(13.333)
     prs.slide_height = Inches(7.5)
     
-    # Định nghĩa bảng màu (Tech Palette - Tông sáng, hiện đại, không dùng màu đen)
+    # Định nghĩa bảng màu (Tech Palette - Tông sáng, hiện đại, tuyệt đối không dùng màu đen)
     c_navy = RGBColor(30, 58, 138)      # #1E3A8A (Royal Blue - Xanh công nghệ sáng và chuyên nghiệp)
     c_teal = RGBColor(13, 148, 136)    # #0D9488 (Teal - Celery Green)
     c_purple = RGBColor(124, 58, 237)  # #7C3AED (Bright Purple - Async)
-    c_slate = RGBColor(51, 65, 85)     # #334155 (Slate text - Xám Slate dịu mắt, không dùng màu đen)
+    c_slate = RGBColor(71, 85, 105)     # #475569 (Slate text - Xám Slate sáng dịu mắt, không dùng màu đen)
     c_bg = RGBColor(255, 255, 255)     # #FFFFFF (Nền trắng tinh khiết - Sáng sủa)
     c_card_bg = RGBColor(248, 250, 252)# #F8FAFC (Xám nhạt Slate 50)
     c_border = RGBColor(226, 232, 240) # #E2E8F0 (Viền xám nhạt Slate 200)
@@ -56,6 +56,12 @@ def create_presentation():
         p_title.font.size = Pt(28)
         p_title.font.bold = True
         p_title.font.color.rgb = c_navy
+
+        # Accent Line mỏng màu teal nằm ngang dưới tiêu đề để tăng tính thẩm mỹ và hiện đại
+        accent_line = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0.8), Inches(1.5), Inches(11.733), Inches(0.03))
+        accent_line.fill.solid()
+        accent_line.fill.fore_color.rgb = c_teal
+        accent_line.line.fill.background()
 
     # Helper vẽ một Card có bo góc và viền
     def draw_card(slide, left, top, width, height, title, content_lines, title_color=c_navy):
@@ -101,9 +107,20 @@ def create_presentation():
     slide_layout = prs.slide_layouts[6] # Blank Layout
     slide1 = prs.slides.add_slide(slide_layout)
     set_bg(slide1)
+
+    # Dải màu trang trí bên trái trang bìa (Sidebar Accent)
+    bar1 = slide1.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0), Inches(0), Inches(0.4), Inches(7.5))
+    bar1.fill.solid()
+    bar1.fill.fore_color.rgb = c_teal
+    bar1.line.fill.background()
+    
+    bar2 = slide1.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0.4), Inches(0), Inches(0.12), Inches(7.5))
+    bar2.fill.solid()
+    bar2.fill.fore_color.rgb = c_purple
+    bar2.line.fill.background()
     
     # Title chính giữa phía trên
-    tx_title1 = slide1.shapes.add_textbox(Inches(1.0), Inches(0.8), Inches(11.333), Inches(1.5))
+    tx_title1 = slide1.shapes.add_textbox(Inches(1.2), Inches(0.8), Inches(11.0), Inches(1.5))
     tf1 = tx_title1.text_frame
     tf1.word_wrap = True
     p1_title = tf1.paragraphs[0]
@@ -123,13 +140,13 @@ def create_presentation():
     p1_sub.font.color.rgb = c_slate
     p1_sub.space_before = Pt(12)
 
-    # Khớp bố cục 3 Card của user
+    # Khớp bố cục 3 Card của user (dịch chuyển nhẹ sang phải tránh sidebar)
     # Card 1: Giảng viên hướng dẫn
     draw_card(
         slide1, 
-        left=Inches(1.5), 
+        left=Inches(1.6), 
         top=Inches(3.2), 
-        width=Inches(5.0), 
+        width=Inches(4.9), 
         height=Inches(2.0),
         title="Giảng viên hướng dẫn",
         content_lines=["TS. Nguyễn Thành Trung"]
@@ -140,7 +157,7 @@ def create_presentation():
         slide1, 
         left=Inches(6.833), 
         top=Inches(3.2), 
-        width=Inches(5.0), 
+        width=Inches(4.9), 
         height=Inches(2.0),
         title="Thành viên Nhóm 2",
         content_lines=[
@@ -152,9 +169,9 @@ def create_presentation():
     # Card 3: Thời gian (Chạy ngang bên dưới)
     draw_card(
         slide1, 
-        left=Inches(1.5), 
+        left=Inches(1.6), 
         top=Inches(5.5), 
-        width=Inches(10.333), 
+        width=Inches(10.133), 
         height=Inches(1.2),
         title="Thời gian thực hiện",
         content_lines=["Hà Nội, Tháng 5 năm 2026"]
@@ -210,93 +227,117 @@ def create_presentation():
     s_p.fill.solid()
     s_p.fill.fore_color.rgb = c_card_bg
     s_p.line.color.rgb = c_border
+    s_p.line.width = Pt(1.5)
     s_p.text_frame.word_wrap = True
     p_sp_t = s_p.text_frame.paragraphs[0]
     p_sp_t.text = "TẦNG SẢN XUẤT (PRODUCERS)"
+    p_sp_t.font.name = 'Arial'
     p_sp_t.font.bold = True
     p_sp_t.font.size = Pt(14)
     p_sp_t.font.color.rgb = c_teal
     p_sp_t.alignment = PP_ALIGN.CENTER
     p_sp_c = s_p.text_frame.add_paragraph()
     p_sp_c.text = "Các Web Application (FastAPI, Django, Flask) tạo và gửi yêu cầu tác vụ qua mạng"
+    p_sp_c.font.name = 'Arial'
     p_sp_c.font.size = Pt(12)
     p_sp_c.font.color.rgb = c_slate
     p_sp_c.alignment = PP_ALIGN.CENTER
     
     # Label Arrow 1
-    tx_a1 = slide3.shapes.add_textbox(Inches(2.0), Inches(2.75), Inches(9.333), Inches(0.4))
-    tx_a1.text_frame.paragraphs[0].text = "↓  1. Kích hoạt và Đóng gói Task (JSON)  ↓"
-    tx_a1.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
-    tx_a1.text_frame.paragraphs[0].font.size = Pt(11)
-    tx_a1.text_frame.paragraphs[0].font.color.rgb = c_purple
-    tx_a1.text_frame.paragraphs[0].font.italic = True
+    tx_a1 = slide3.shapes.add_textbox(Inches(2.0), Inches(2.72), Inches(9.333), Inches(0.4))
+    tx_a1.text_frame.word_wrap = True
+    p_a1 = tx_a1.text_frame.paragraphs[0]
+    p_a1.text = "↓  1. Kích hoạt và Đóng gói Task (JSON)  ↓"
+    p_a1.alignment = PP_ALIGN.CENTER
+    p_a1.font.name = 'Arial'
+    p_a1.font.size = Pt(11)
+    p_a1.font.color.rgb = c_purple
+    p_a1.font.italic = True
+    p_a1.font.bold = True
 
     # 2. Tầng trung gian điều phối (Broker)
-    s_b = slide3.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(2.0), Inches(3.2), Inches(9.333), Inches(1.0))
+    s_b = slide3.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(2.0), Inches(3.12), Inches(9.333), Inches(1.0))
     s_b.fill.solid()
     s_b.fill.fore_color.rgb = c_card_bg
     s_b.line.color.rgb = c_border
+    s_b.line.width = Pt(1.5)
     s_b.text_frame.word_wrap = True
     p_sb_t = s_b.text_frame.paragraphs[0]
     p_sb_t.text = "TẦNG TRUNG GIAN ĐIỀU PHỐI (MESSAGE BROKER)"
+    p_sb_t.font.name = 'Arial'
     p_sb_t.font.bold = True
     p_sb_t.font.size = Pt(14)
     p_sb_t.font.color.rgb = c_teal
     p_sb_t.alignment = PP_ALIGN.CENTER
     p_sb_c = s_b.text_frame.add_paragraph()
     p_sb_c.text = "[ RabbitMQ / Redis Message Broker ]\n- Nhận thông điệp  - Xếp hàng đợi (Queue)  - Phân phối tin nhắn cho Worker rảnh"
+    p_sb_c.font.name = 'Arial'
     p_sb_c.font.size = Pt(11)
     p_sb_c.font.color.rgb = c_slate
     p_sb_c.alignment = PP_ALIGN.CENTER
 
     # Label Arrow 2
-    tx_a2 = slide3.shapes.add_textbox(Inches(2.0), Inches(4.25), Inches(9.333), Inches(0.4))
-    tx_a2.text_frame.paragraphs[0].text = "↓  2. Đẩy / Kéo Task theo cơ chế Fair-Dispatch  ↓"
-    tx_a2.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
-    tx_a2.text_frame.paragraphs[0].font.size = Pt(11)
-    tx_a2.text_frame.paragraphs[0].font.color.rgb = c_purple
-    tx_a2.text_frame.paragraphs[0].font.italic = True
+    tx_a2 = slide3.shapes.add_textbox(Inches(2.0), Inches(4.14), Inches(9.333), Inches(0.4))
+    tx_a2.text_frame.word_wrap = True
+    p_a2 = tx_a2.text_frame.paragraphs[0]
+    p_a2.text = "↓  2. Đẩy / Kéo Task theo cơ chế Fair-Dispatch  ↓"
+    p_a2.alignment = PP_ALIGN.CENTER
+    p_a2.font.name = 'Arial'
+    p_a2.font.size = Pt(11)
+    p_a2.font.color.rgb = c_purple
+    p_a2.font.italic = True
+    p_a2.font.bold = True
 
     # 3. Tầng xử lý phân tán (Workers)
-    s_w = slide3.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(2.0), Inches(4.7), Inches(9.333), Inches(1.0))
+    s_w = slide3.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(2.0), Inches(4.54), Inches(9.333), Inches(1.0))
     s_w.fill.solid()
     s_w.fill.fore_color.rgb = c_card_bg
     s_w.line.color.rgb = c_border
+    s_w.line.width = Pt(1.5)
     s_w.text_frame.word_wrap = True
     p_sw_t = s_w.text_frame.paragraphs[0]
     p_sw_t.text = "TẦNG XỬ LÝ PHÂN TÁN (CELERY WORKERS)"
+    p_sw_t.font.name = 'Arial'
     p_sw_t.font.bold = True
     p_sw_t.font.size = Pt(14)
     p_sw_t.font.color.rgb = c_teal
     p_sw_t.alignment = PP_ALIGN.CENTER
     p_sw_c = s_w.text_frame.add_paragraph()
     p_sw_c.text = "Các Worker Node chạy song song trên nhiều máy chủ độc lập\n[ Worker Node 1 ]       [ Worker Node 2 ]       [ Worker Node N ]"
+    p_sw_c.font.name = 'Arial'
     p_sw_c.font.size = Pt(11)
     p_sw_c.font.color.rgb = c_slate
     p_sw_c.alignment = PP_ALIGN.CENTER
 
     # Label Arrow 3
-    tx_a3 = slide3.shapes.add_textbox(Inches(2.0), Inches(5.75), Inches(9.333), Inches(0.4))
-    tx_a3.text_frame.paragraphs[0].text = "↓  3. Ghi nhận trạng thái xử lý và kết quả  ↓"
-    tx_a3.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
-    tx_a3.text_frame.paragraphs[0].font.size = Pt(11)
-    tx_a3.text_frame.paragraphs[0].font.color.rgb = c_purple
-    tx_a3.text_frame.paragraphs[0].font.italic = True
+    tx_a3 = slide3.shapes.add_textbox(Inches(2.0), Inches(5.56), Inches(9.333), Inches(0.4))
+    tx_a3.text_frame.word_wrap = True
+    p_a3 = tx_a3.text_frame.paragraphs[0]
+    p_a3.text = "↓  3. Ghi nhận trạng thái xử lý và kết quả  ↓"
+    p_a3.alignment = PP_ALIGN.CENTER
+    p_a3.font.name = 'Arial'
+    p_a3.font.size = Pt(11)
+    p_a3.font.color.rgb = c_purple
+    p_a3.font.italic = True
+    p_a3.font.bold = True
 
     # 4. Tầng lưu trữ kết quả (Backend)
-    s_r = slide3.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(2.0), Inches(6.2), Inches(9.333), Inches(0.8))
+    s_r = slide3.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(2.0), Inches(5.96), Inches(9.333), Inches(0.8))
     s_r.fill.solid()
     s_r.fill.fore_color.rgb = c_card_bg
     s_r.line.color.rgb = c_border
+    s_r.line.width = Pt(1.5)
     s_r.text_frame.word_wrap = True
     p_sr_t = s_r.text_frame.paragraphs[0]
     p_sr_t.text = "TẦNG LƯU TRỮ KẾT QUẢ (RESULT BACKEND)"
+    p_sr_t.font.name = 'Arial'
     p_sr_t.font.bold = True
     p_sr_t.font.size = Pt(14)
     p_sr_t.font.color.rgb = c_teal
     p_sr_t.alignment = PP_ALIGN.CENTER
     p_sr_c = s_r.text_frame.add_paragraph()
     p_sr_c.text = "[ Redis Database / PostgreSQL / Memcached ] để lưu giá trị trả về và thông tin lỗi"
+    p_sr_c.font.name = 'Arial'
     p_sr_c.font.size = Pt(11)
     p_sr_c.font.color.rgb = c_slate
     p_sr_c.alignment = PP_ALIGN.CENTER
