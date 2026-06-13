@@ -125,22 +125,55 @@ def send_email_async(
 @app.get("/api/tasks/{task_id}/status")
 def get_task_status(task_id: str):
     """
-    Truy vấn trạng thái và kết quả của task trong Redis Backend.
+    Truy vấn trạng thái và kết quả của task trong Redis Backend một cách an toàn
+    bằng cách đọc trực tiếp từ Redis, tránh lỗi deserialization Exception của Celery.
     """
-    res = AsyncResult(task_id, app=celery_app)
+    import json
+    from redis import Redis
     
-    response = {
-        "task_id": task_id,
-        "status": res.status,
-        "result": None
-    }
+    redis_url = celery_app.conf.result_backend or "redis://localhost:6379/0"
     
-    if res.ready():
-        response["result"] = res.result
-    elif res.status == "PROGRESS":
-        response["result"] = res.info  # Chứa metadata tiến trình tự định nghĩa
+    try:
+        client = Redis.from_url(redis_url)
+        meta_bytes = client.get(f"celery-task-meta-{task_id}")
         
-    return response
+        if not meta_bytes:
+            return {
+                "task_id": task_id,
+                "status": "PENDING",
+                "result": None
+            }
+            
+        meta = json.loads(meta_bytes.decode('utf-8'))
+        status = meta.get("status", "PENDING")
+        result = meta.get("result")
+        
+        # Nếu result là thông tin ngoại lệ, format thành chuỗi
+        if isinstance(result, dict) and "exc_type" in result:
+            result = f"{result['exc_type']}: {result.get('exc_message', '')}"
+            
+        return {
+            "task_id": task_id,
+            "status": status,
+            "result": result
+        }
+    except Exception as e:
+        # Cơ chế Fallback
+        try:
+            res = AsyncResult(task_id, app=celery_app)
+            status = res.status
+            result = res.info
+            if isinstance(result, Exception):
+                result = str(result)
+            return {
+                "task_id": task_id,
+                "status": status,
+                "result": result
+            }
+        except Exception as fallback_err:
+            import traceback
+            traceback.print_exc()
+            raise HTTPException(status_code=500, detail=str(fallback_err))
 
 
 # ============================================================
@@ -245,7 +278,7 @@ class WorkerManager:
         kill_all_celery_workers()
         
         # Chạy Python ở chế độ không đệm (unbuffered -u) để log được ghi xuống đĩa ngay lập tức
-        cmd = [sys.executable, "-u", "-m", "celery", "-A", "core.main", "worker", "--loglevel=info"]
+        cmd = [sys.executable, "-u", "-m", "celery", "-A", "core.main", "worker", "--loglevel=info", "-Q", "default,high_priority,low_priority"]
         
         if pool_type == "solo":
             cmd.extend(["--pool", "solo"])
@@ -271,11 +304,15 @@ class WorkerManager:
             
         try:
             creation_flags = subprocess.CREATE_NEW_PROCESS_GROUP if os.name == 'nt' else 0
+            env = os.environ.copy()
+            env["PYTHONIOENCODING"] = "utf-8"
+            env["PYTHONUTF8"] = "1"
             self.process = subprocess.Popen(
                 cmd,
                 stdout=log_f,
                 stderr=subprocess.STDOUT,
-                creationflags=creation_flags
+                creationflags=creation_flags,
+                env=env
             )
             self.pool_type = pool_type
             self.concurrency = concurrency
@@ -384,6 +421,145 @@ def get_worker_stats():
 @app.get("/api/worker/logs")
 def get_worker_logs(lines: int = Query(50)):
     return {"logs": worker_mgr.get_logs(lines)}
+
+
+# ============================================================
+# FEATURE 1: DISTRIBUTED LOCK (TN5)
+# ============================================================
+
+@app.post("/api/payment/trigger")
+def trigger_payment_demo(
+    txn_id: str = Query("TXN_12345", description="Mã giao dịch"),
+    amount: float = Query(500000.0, description="Số tiền")
+):
+    """
+    Kích hoạt kịch bản thử nghiệm khóa phân tán (Distributed Lock).
+    Gửi đồng thời 2 task trùng mã giao dịch (txn_id) và 1 task khác mã giao dịch (txn_unique).
+    """
+    celery_app.set_current()
+    celery_app.set_default()
+    
+    txn_unique = f"TXN_UNIQUE_{uuid.uuid4().hex[:6].upper()}"
+    
+    # Task 1: Trùng khóa
+    task1 = celery_app.send_task(
+        "feature1_distributed_lock.tasks.process_payment_task",
+        args=[txn_id, amount]
+    )
+    # Task 2: Trùng khóa (gửi ngay sau đó)
+    task2 = celery_app.send_task(
+        "feature1_distributed_lock.tasks.process_payment_task",
+        args=[txn_id, amount]
+    )
+    # Task 3: Khác khóa
+    task3 = celery_app.send_task(
+        "feature1_distributed_lock.tasks.process_payment_task",
+        args=[txn_unique, amount / 2]
+    )
+    
+    return {
+        "status": "triggered",
+        "txn_duplicate": txn_id,
+        "txn_unique": txn_unique,
+        "task_ids": {
+            "task_dup_1": task1.id,
+            "task_dup_2": task2.id,
+            "task_unique": task3.id
+        }
+    }
+
+
+# ============================================================
+# FEATURE 2: DEAD LETTER QUEUE & ALERTING (TN6)
+# ============================================================
+
+@app.post("/api/dlq/trigger")
+def trigger_dlq_demo(
+    data: str = Query("order_import_9999", description="Dữ liệu đồng bộ")
+):
+    """
+    Kích hoạt kịch bản thử nghiệm Dead Letter Queue (DLQ).
+    Gửi một flaky task lỗi kết nối bên thứ 3 và tự động retry 3 lần trước khi đẩy vào DLQ.
+    """
+    celery_app.set_current()
+    celery_app.set_default()
+    
+    task = celery_app.send_task(
+        "feature2_dlq_alerting.tasks.process_flaky_task",
+        args=[data]
+    )
+    
+    return {
+        "status": "triggered",
+        "task_id": task.id
+    }
+
+
+@app.get("/api/dlq/messages")
+def get_dlq_messages_api():
+    """
+    Đọc tất cả các tin nhắn hiện có trong Dead Letter Queue (celery.dlq) mà không xóa (Requeue).
+    """
+    messages = get_dlq_messages_internal(ack=False)
+    return {"count": len(messages), "messages": messages}
+
+
+@app.post("/api/dlq/clear")
+def clear_dlq_messages_api():
+    """
+    Đọc và giải phóng (Xóa / Ack) toàn bộ các tin nhắn trong celery.dlq.
+    """
+    messages = get_dlq_messages_internal(ack=True)
+    return {"status": "cleared", "count": len(messages), "messages": messages}
+
+
+def get_dlq_messages_internal(ack: bool = False):
+    import logging
+    logger_internal = logging.getLogger("webapp.dlq")
+    from kombu import Connection, Queue, Exchange
+    broker_url = celery_app.conf.broker_url
+    messages = []
+    temp_msgs = []
+    try:
+        with Connection(broker_url) as conn:
+            dlx_exchange = Exchange('dlx', type='direct')
+            dlq_queue = Queue('celery.dlq', exchange=dlx_exchange, routing_key='celery.dlq')
+            with conn.SimpleQueue(dlq_queue) as simple_queue:
+                while True:
+                    try:
+                        # Đọc nhanh tin nhắn lỗi với timeout ngắn
+                        msg = simple_queue.get(block=True, timeout=0.3)
+                        payload = msg.payload
+                        headers = msg.headers
+                        
+                        # Parse args an toàn cho cả Celery v2 payload format
+                        task_args = payload
+                        if isinstance(payload, (list, tuple)) and len(payload) > 0:
+                            if isinstance(payload[0], (list, tuple)):
+                                task_args = payload[0][0] if len(payload[0]) > 0 else "N/A"
+                            else:
+                                task_args = payload[0]
+                        
+                        messages.append({
+                            "id": headers.get("id", "N/A"),
+                            "task": headers.get("task", "N/A"),
+                            "args": task_args,
+                            "death_reason": headers.get("x-death", [{}])[0].get("reason", "N/A")
+                        })
+                        if ack:
+                            msg.ack()
+                        else:
+                            temp_msgs.append(msg)
+                    except simple_queue.Empty:
+                        break
+                
+                # Trả ngược lại các tin nhắn vào hàng đợi sau khi đã đọc hết
+                if not ack:
+                    for msg in temp_msgs:
+                        msg.requeue()
+    except Exception as e:
+        logger_internal.error(f"Error reading DLQ: {e}")
+    return messages
 
 @app.on_event("shutdown")
 def shutdown_event():

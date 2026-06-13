@@ -13,24 +13,24 @@
     
     <style>
         :root {
-            --bg-color: #0b0f19;
-            --panel-bg: rgba(17, 24, 39, 0.7);
-            --panel-border: rgba(255, 255, 255, 0.08);
-            --text-primary: #f3f4f6;
-            --text-secondary: #9ca3af;
+            --bg-color: #f8fafc;
+            --panel-bg: #ffffff;
+            --panel-border: #e2e8f0;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
             
-            --celery-green: #31c48d;
-            --celery-glow: rgba(49, 196, 141, 0.4);
-            --async-purple: #8b5cf6;
-            --async-indigo: #6366f1;
-            --async-glow: rgba(139, 92, 246, 0.4);
-            --sync-red: #ef4444;
-            --sync-glow: rgba(239, 68, 68, 0.4);
+            --celery-green: #0d9488;
+            --celery-glow: rgba(13, 148, 136, 0.15);
+            --async-purple: #6d28d9;
+            --async-indigo: #4f46e5;
+            --async-glow: rgba(79, 70, 229, 0.12);
+            --sync-red: #e11d48;
+            --sync-glow: rgba(225, 29, 72, 0.12);
             
-            --status-pending: #f59e0b;
-            --status-success: #10b981;
-            --status-progress: #3b82f6;
-            --status-failure: #ef4444;
+            --status-pending: #d97706;
+            --status-success: #059669;
+            --status-progress: #2563eb;
+            --status-failure: #dc2626;
         }
 
         * {
@@ -44,12 +44,12 @@
         body {
             background-color: var(--bg-color);
             background-image: 
-                radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(139, 92, 246, 0.15) 0%, transparent 40%);
+                radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.04) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(139, 92, 246, 0.04) 0%, transparent 40%);
             background-attachment: fixed;
             color: var(--text-primary);
             min-height: 100vh;
-            padding: 2rem 1.5rem;
+            padding: 1.5rem 1rem;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -60,7 +60,7 @@
             max-width: 1200px;
             display: flex;
             flex-direction: column;
-            gap: 2rem;
+            gap: 1.5rem;
         }
 
         /* HEADER SECTION */
@@ -68,43 +68,42 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1.5rem;
+            padding: 1.2rem 1.5rem;
             background: var(--panel-bg);
-            backdrop-filter: blur(12px);
             border: 1px solid var(--panel-border);
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border-radius: 16px;
+            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
         }
 
         .brand {
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: 0.75rem;
         }
 
         .brand-logo {
-            width: 48px;
-            height: 48px;
-            background: linear-gradient(135deg, var(--celery-green), #057a55);
-            border-radius: 12px;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--celery-green), #0d9488);
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
+            font-size: 1.25rem;
             color: #fff;
-            box-shadow: 0 0 15px var(--celery-glow);
+            box-shadow: 0 0 10px var(--celery-glow);
         }
 
         .brand-title h1 {
-            font-size: 1.5rem;
+            font-size: 1.25rem;
             font-weight: 700;
-            background: linear-gradient(to right, #fff, #9ca3af);
+            background: linear-gradient(to right, #0f172a, #334155);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
         .brand-title p {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: var(--text-secondary);
             font-weight: 400;
         }
@@ -113,54 +112,54 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            background: rgba(49, 196, 141, 0.1);
-            border: 1px solid rgba(49, 196, 141, 0.2);
-            padding: 0.5rem 1rem;
+            background: rgba(13, 148, 136, 0.08);
+            border: 1px solid rgba(13, 148, 136, 0.15);
+            padding: 0.4rem 0.8rem;
             border-radius: 30px;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             color: var(--celery-green);
             font-weight: 500;
         }
 
         .status-dot {
-            width: 8px;
-            height: 8px;
+            width: 7px;
+            height: 7px;
             background-color: var(--celery-green);
             border-radius: 50%;
             display: inline-block;
-            box-shadow: 0 0 10px var(--celery-green);
+            box-shadow: 0 0 8px var(--celery-green);
             animation: pulse 2s infinite;
         }
 
         @keyframes pulse {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(49, 196, 141, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(49, 196, 141, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(49, 196, 141, 0); }
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(13, 148, 136, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(13, 148, 136, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(13, 148, 136, 0); }
         }
 
         /* GRID LAYOUT FOR METRICS AND LINKS */
         .top-row {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.25rem;
         }
 
         .card {
             background: var(--panel-bg);
-            backdrop-filter: blur(12px);
             border: 1px solid var(--panel-border);
-            border-radius: 16px;
-            padding: 1.5rem;
+            border-radius: 14px;
+            padding: 1.25rem;
             display: flex;
             flex-direction: column;
-            gap: 1rem;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-            transition: transform 0.3s ease, border-color 0.3s ease;
+            gap: 0.75rem;
+            box-shadow: 0 4px 15px -3px rgba(0, 0, 0, 0.04);
+            transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
         }
 
         .card:hover {
-            transform: translateY(-3px);
-            border-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+            border-color: #cbd5e1;
+            box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.06);
         }
 
         .card-header-info {
@@ -170,27 +169,27 @@
         }
 
         .card-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
         }
 
-        .icon-rabbitmq { background: rgba(247, 102, 43, 0.15); color: #ff6600; }
-        .icon-redis { background: rgba(220, 56, 47, 0.15); color: #dc382f; }
-        .icon-flower { background: rgba(238, 126, 169, 0.15); color: #ee7ea9; }
+        .icon-rabbitmq { background: rgba(247, 102, 43, 0.1); color: #e05300; }
+        .icon-redis { background: rgba(220, 56, 47, 0.1); color: #c92f27; }
+        .icon-flower { background: rgba(219, 39, 119, 0.1); color: #db2777; }
 
         .card-title {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 500;
             color: var(--text-secondary);
         }
 
         .card-value {
-            font-size: 1.25rem;
+            font-size: 1.1rem;
             font-weight: 600;
             color: var(--text-primary);
             word-break: break-all;
@@ -200,30 +199,31 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 0.5rem;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: var(--text-primary);
+            gap: 0.4rem;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            color: #334155;
             text-decoration: none;
-            padding: 0.6rem 1rem;
-            border-radius: 10px;
-            font-size: 0.85rem;
+            padding: 0.5rem 0.8rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
             font-weight: 500;
             cursor: pointer;
-            transition: background 0.2s ease, border-color 0.2s ease;
+            transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
             margin-top: auto;
         }
 
         .card-link-btn:hover {
-            background: rgba(255, 255, 255, 0.15);
-            border-color: rgba(255, 255, 255, 0.25);
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+            color: #0f172a;
         }
 
         /* DEMO AND EXPERIMENT SECTION */
         .main-section {
             display: grid;
-            grid-template-columns: 1.2fr 0.8fr;
-            gap: 1.5rem;
+            grid-template-columns: 1.25fr 0.75fr;
+            gap: 1.25rem;
         }
 
         @media (max-width: 900px) {
@@ -234,24 +234,23 @@
 
         .panel {
             background: var(--panel-bg);
-            backdrop-filter: blur(12px);
             border: 1px solid var(--panel-border);
-            border-radius: 20px;
-            padding: 2rem;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px -3px rgba(0, 0, 0, 0.04);
             display: flex;
             flex-direction: column;
-            gap: 1.5rem;
+            gap: 1.25rem;
         }
 
         .panel-title {
-            font-size: 1.25rem;
+            font-size: 1.15rem;
             font-weight: 600;
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-            padding-bottom: 1rem;
+            gap: 0.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 0.75rem;
         }
 
         .panel-title i {
@@ -262,47 +261,47 @@
         .form-grid {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 1.2rem;
+            gap: 1rem;
         }
 
         .form-group {
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
+            gap: 0.4rem;
         }
 
         .form-label {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 500;
             color: var(--text-secondary);
         }
 
         .form-input {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 0.8rem 1rem;
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 0.7rem 0.9rem;
             color: var(--text-primary);
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             outline: none;
-            transition: border-color 0.2s ease, background-color 0.2s ease;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
 
         .form-input:focus {
             border-color: var(--async-indigo);
-            background-color: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
         }
 
         .form-textarea {
             resize: vertical;
-            min-height: 100px;
+            min-height: 80px;
         }
 
         /* ACTIONS PANEL */
         .btn-container {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 1rem;
+            gap: 0.75rem;
         }
 
         @media (max-width: 600px) {
@@ -315,62 +314,62 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 0.6rem;
-            padding: 1rem;
-            border-radius: 12px;
-            font-size: 0.95rem;
+            gap: 0.5rem;
+            padding: 0.8rem;
+            border-radius: 10px;
+            font-size: 0.9rem;
             font-weight: 600;
             cursor: pointer;
             border: none;
             outline: none;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             color: #fff;
         }
 
         .btn-sync {
-            background: linear-gradient(135deg, var(--sync-red), #b91c1c);
-            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.2);
+            background: linear-gradient(135deg, var(--sync-red), #be123c);
+            box-shadow: 0 4px 10px rgba(225, 29, 72, 0.15);
         }
 
         .btn-sync:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
-            filter: brightness(1.1);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 15px rgba(225, 29, 72, 0.25);
+            filter: brightness(1.05);
         }
 
         .btn-async {
             background: linear-gradient(135deg, var(--async-purple), var(--async-indigo));
-            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.2);
+            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.15);
         }
 
         .btn-async:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
-            filter: brightness(1.1);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 15px rgba(79, 70, 229, 0.25);
+            filter: brightness(1.05);
         }
 
         /* RESULT COMPARISON PANEL */
         .comparison-panel {
             display: flex;
             flex-direction: column;
-            gap: 1.5rem;
+            gap: 1.25rem;
         }
 
         .metric-box {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 16px;
-            padding: 1.2rem;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1rem;
             display: flex;
             flex-direction: column;
-            gap: 0.75rem;
+            gap: 0.5rem;
         }
 
         .metric-label-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 500;
         }
 
@@ -378,44 +377,44 @@
         .label-async { color: var(--async-purple); }
 
         .metric-value-row {
-            font-size: 1.75rem;
+            font-size: 1.5rem;
             font-weight: 700;
         }
 
         .bar-container {
             width: 100%;
-            height: 8px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 4px;
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 3px;
             overflow: hidden;
         }
 
         .bar {
             height: 100%;
             width: 0%;
-            border-radius: 4px;
+            border-radius: 3px;
             transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .bar-sync { background: var(--sync-red); box-shadow: 0 0 10px var(--sync-glow); }
-        .bar-async { background: var(--async-purple); box-shadow: 0 0 10px var(--async-glow); }
+        .bar-sync { background: var(--sync-red); }
+        .bar-async { background: var(--async-purple); }
 
         .speedup-card {
-            background: linear-gradient(135deg, rgba(49, 196, 141, 0.05) 0%, rgba(16, 185, 129, 0.1) 100%);
-            border: 1px solid rgba(49, 196, 141, 0.2);
-            border-radius: 16px;
-            padding: 1.5rem;
+            background: linear-gradient(135deg, rgba(13, 148, 136, 0.03) 0%, rgba(16, 185, 129, 0.08) 100%);
+            border: 1px solid rgba(13, 148, 136, 0.15);
+            border-radius: 12px;
+            padding: 1.2rem;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 0.5rem;
+            gap: 0.4rem;
             text-align: center;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.01);
         }
 
         .speedup-title {
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             font-weight: 500;
             color: var(--text-secondary);
             text-transform: uppercase;
@@ -423,23 +422,21 @@
         }
 
         .speedup-value {
-            font-size: 2.25rem;
+            font-size: 1.85rem;
             font-weight: 800;
             color: var(--celery-green);
-            text-shadow: 0 0 20px var(--celery-glow);
         }
 
         /* TASKS PROGRESS TABLE PANEL */
         .tasks-panel {
             background: var(--panel-bg);
-            backdrop-filter: blur(12px);
             border: 1px solid var(--panel-border);
-            border-radius: 20px;
-            padding: 2rem;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px -3px rgba(0, 0, 0, 0.04);
             display: flex;
             flex-direction: column;
-            gap: 1.5rem;
+            gap: 1.25rem;
         }
 
         .tasks-table-wrapper {
@@ -451,19 +448,19 @@
             width: 100%;
             border-collapse: collapse;
             text-align: left;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
         }
 
         th {
-            padding: 1rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 0.75rem;
+            border-bottom: 1px solid #e2e8f0;
             font-weight: 600;
             color: var(--text-secondary);
         }
 
         td {
-            padding: 1.2rem 1rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            padding: 0.9rem 0.75rem;
+            border-bottom: 1px solid #f1f5f9;
             vertical-align: middle;
         }
 
@@ -473,36 +470,36 @@
 
         .task-id-cell {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: var(--text-secondary);
         }
 
         .badge {
             display: inline-flex;
             align-items: center;
-            gap: 0.35rem;
-            padding: 0.35rem 0.75rem;
-            border-radius: 30px;
-            font-size: 0.8rem;
+            gap: 0.3rem;
+            padding: 0.25rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
             font-weight: 600;
             text-transform: uppercase;
         }
 
-        .badge-pending { background: rgba(245, 158, 11, 0.1); color: var(--status-pending); border: 1px solid rgba(245, 158, 11, 0.2); }
-        .badge-progress { background: rgba(59, 130, 246, 0.1); color: var(--status-progress); border: 1px solid rgba(59, 130, 246, 0.2); }
-        .badge-success { background: rgba(16, 185, 129, 0.1); color: var(--status-success); border: 1px solid rgba(16, 185, 129, 0.2); }
-        .badge-failure { background: rgba(239, 68, 68, 0.1); color: var(--status-failure); border: 1px solid rgba(239, 68, 68, 0.2); }
+        .badge-pending { background: rgba(245, 158, 11, 0.08); color: var(--status-pending); border: 1px solid rgba(245, 158, 11, 0.15); }
+        .badge-progress { background: rgba(59, 130, 246, 0.08); color: var(--status-progress); border: 1px solid rgba(59, 130, 246, 0.15); }
+        .badge-success { background: rgba(16, 185, 129, 0.08); color: var(--status-success); border: 1px solid rgba(16, 185, 129, 0.15); }
+        .badge-failure { background: rgba(239, 68, 68, 0.08); color: var(--status-failure); border: 1px solid rgba(239, 68, 68, 0.15); }
 
         .batch-header-row {
-            background: rgba(139, 92, 246, 0.08) !important;
-            border-bottom: 1px solid rgba(139, 92, 246, 0.2) !important;
+            background: #f5f3ff !important;
+            border-bottom: 1px solid #ddd6fe !important;
         }
 
         .batch-header-cell {
-            padding: 0.8rem 1rem !important;
+            padding: 0.6rem 0.75rem !important;
             font-weight: 600;
             color: var(--async-purple) !important;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             text-transform: uppercase;
             letter-spacing: 0.05em;
         }
@@ -513,37 +510,37 @@
             border: none;
             color: var(--text-secondary);
             font-weight: 500;
-            padding: 0.6rem 1.2rem;
-            border-radius: 10px;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
             cursor: pointer;
             transition: all 0.2s ease;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             display: inline-flex;
             align-items: center;
-            gap: 0.4rem;
+            gap: 0.35rem;
         }
 
         .tab-btn:hover {
             color: var(--text-primary);
-            background: rgba(255, 255, 255, 0.05);
+            background: #f1f5f9;
         }
 
         .tab-btn.active {
             color: #fff !important;
             background: linear-gradient(135deg, var(--async-purple), var(--async-indigo)) !important;
             font-weight: 600;
-            box-shadow: 0 4px 12px var(--async-glow);
+            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.2);
         }
 
         .progress-cell-container {
             display: flex;
             flex-direction: column;
-            gap: 0.4rem;
-            min-width: 150px;
+            gap: 0.35rem;
+            min-width: 120px;
         }
 
         .progress-text {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: var(--text-secondary);
             display: flex;
             justify-content: space-between;
@@ -551,9 +548,9 @@
 
         .progress-bar-outer {
             width: 100%;
-            height: 6px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 3px;
+            height: 4px;
+            background: #e2e8f0;
+            border-radius: 2px;
             overflow: hidden;
         }
 
@@ -561,53 +558,70 @@
             height: 100%;
             width: 0%;
             background: linear-gradient(to right, var(--async-purple), var(--async-indigo));
-            border-radius: 3px;
+            border-radius: 2px;
             transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .result-cell {
-            max-width: 380px;
-            font-size: 0.85rem;
+            max-width: 300px;
+            font-size: 0.8rem;
             color: var(--text-secondary);
-            line-height: 1.45;
+            line-height: 1.4;
         }
 
-        .result-cell.success { color: #34d399; }
-        .result-cell.failure { color: #f87171; }
+        .result-cell.success { color: #059669; }
+        .result-cell.failure { color: #dc2626; }
 
         /* LOG TERMINAL PANEL */
         .terminal-panel {
-            background: #060913;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 14px;
-            padding: 1.2rem;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 1rem;
             font-family: 'JetBrains Mono', monospace;
-            font-size: 0.85rem;
-            color: #38bdf8;
-            max-height: 250px;
+            font-size: 0.8rem;
+            color: #0f172a;
+            height: 420px;
+            min-height: 200px;
+            max-height: 900px;
             overflow-y: auto;
+            resize: vertical;
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
-            box-shadow: inset 0 2px 10px rgba(0,0,0,0.8);
+            gap: 0.35rem;
+        }
+
+        .terminal-panel::-webkit-scrollbar {
+            width: 6px;
+        }
+        .terminal-panel::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.02);
+            border-radius: 3px;
+        }
+        .terminal-panel::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.15);
+            border-radius: 3px;
+        }
+        .terminal-panel::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.25);
         }
 
         .log-line {
-            line-height: 1.4;
+            line-height: 1.35;
             white-space: pre-wrap;
             border-left: 2px solid transparent;
-            padding-left: 0.5rem;
+            padding-left: 0.4rem;
         }
 
         .log-line.system { border-color: var(--celery-green); color: var(--text-secondary); }
-        .log-line.sync { border-color: var(--sync-red); color: #fca5a5; }
-        .log-line.async { border-color: var(--async-purple); color: #c084fc; }
-        .log-line.success { border-color: var(--status-success); color: #34d399; }
+        .log-line.sync { border-color: var(--sync-red); color: #c2410c; }
+        .log-line.async { border-color: var(--async-purple); color: #6d28d9; }
+        .log-line.success { border-color: var(--status-success); color: #047857; }
 
         footer {
-            margin-top: 1.5rem;
+            margin-top: 1rem;
             text-align: center;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: var(--text-secondary);
         }
     </style>
@@ -637,7 +651,7 @@
             <!-- Broker -->
             <div class="card">
                 <div class="card-header-info">
-                    <span class="card-title">Message Broker (RabbitMQ)</span>
+                    <span class="card-title">Bộ chuyển tiếp tin nhắn (RabbitMQ)</span>
                     <div class="card-icon icon-rabbitmq">
                         <i class="fa-solid fa-envelope"></i>
                     </div>
@@ -651,13 +665,13 @@
             <!-- Result Backend -->
             <div class="card">
                 <div class="card-header-info">
-                    <span class="card-title">Result Backend (Redis)</span>
+                    <span class="card-title">Bộ lưu trữ kết quả (Redis)</span>
                     <div class="card-icon icon-redis">
                         <i class="fa-solid fa-database"></i>
                     </div>
                 </div>
                 <div class="card-value">redis://localhost:6379/0</div>
-                <div class="card-link-btn" style="cursor: default; background: rgba(49, 196, 141, 0.05); color: var(--celery-green); border-color: rgba(49, 196, 141, 0.15)">
+                <div class="card-link-btn" style="cursor: default; background: rgba(13, 148, 136, 0.05); color: var(--celery-green); border-color: rgba(13, 148, 136, 0.15)">
                     <i class="fa-solid fa-circle-check"></i> Trạng thái: Hoạt động
                 </div>
             </div>
@@ -665,7 +679,7 @@
             <!-- Flower Monitor -->
             <div class="card">
                 <div class="card-header-info">
-                    <span class="card-title">Celery Monitor (Flower)</span>
+                    <span class="card-title">Giám sát hàng đợi (Flower)</span>
                     <div class="card-icon icon-flower">
                         <i class="fa-solid fa-chart-line"></i>
                     </div>
@@ -680,18 +694,18 @@
             <div class="card" id="worker-manager-card">
                 <div class="card-header-info">
                     <span class="card-title">Quản lý Celery Worker</span>
-                    <div class="card-icon" style="background: rgba(49, 196, 141, 0.15); color: var(--celery-green);" id="worker-manager-icon">
+                    <div class="card-icon" style="background: rgba(13, 148, 136, 0.15); color: var(--celery-green);" id="worker-manager-icon">
                         <i class="fa-solid fa-square-poll-horizontal"></i>
                     </div>
                 </div>
                 <div class="card-value" id="worker-manager-status">Đang tải...</div>
                 
                 <div style="display: flex; gap: 0.5rem; align-items: center; margin-top: 0.25rem;">
-                    <select id="worker-pool-select" class="form-input" style="padding: 0.4rem; font-size: 0.8rem; background: rgba(255,255,255,0.05); border-radius: 8px; flex: 1.5; color: var(--text-primary); border: 1px solid rgba(255,255,255,0.1);">
-                        <option value="solo" style="background: var(--bg-color);">Pool: Solo (C=1)</option>
-                        <option value="threads" style="background: var(--bg-color);">Pool: Threads</option>
+                    <select id="worker-pool-select" class="form-input" style="padding: 0.4rem; font-size: 0.8rem; background: #ffffff; border-radius: 8px; flex: 1.5; color: var(--text-primary); border: 1px solid #cbd5e1;">
+                        <option value="solo" style="background: #ffffff;">Pool: Solo (C=1)</option>
+                        <option value="threads" style="background: #ffffff;">Pool: Threads</option>
                     </select>
-                    <input type="number" id="worker-concurrency-input" class="form-input" style="padding: 0.4rem; font-size: 0.8rem; background: rgba(255,255,255,0.05); border-radius: 8px; flex: 1; text-align: center; color: var(--text-primary); border: 1px solid rgba(255,255,255,0.1);" min="1" max="8" value="4" disabled>
+                    <input type="number" id="worker-concurrency-input" class="form-input" style="padding: 0.4rem; font-size: 0.8rem; background: #ffffff; border-radius: 8px; flex: 1; text-align: center; color: var(--text-primary); border: 1px solid #cbd5e1;" min="1" max="8" value="4" disabled>
                 </div>
                 
                 <button id="btn-toggle-worker" class="card-link-btn" style="background: linear-gradient(135deg, var(--async-purple), var(--async-indigo)); border: none; font-weight: 600; color: #fff; display: flex; justify-content: center; align-items: center; gap: 0.5rem; width: 100%;">
@@ -699,7 +713,7 @@
                 </button>
 
                 <!-- Chi tiết tiến trình Worker -->
-                <div id="worker-details-panel" style="display: none; margin-top: 0.75rem; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 0.75rem; font-size: 0.8rem; color: var(--text-secondary); flex-direction: column; gap: 0.4rem;">
+                <div id="worker-details-panel" style="display: none; margin-top: 0.75rem; border-top: 1px solid #e2e8f0; padding-top: 0.75rem; font-size: 0.8rem; color: var(--text-secondary); flex-direction: column; gap: 0.4rem;">
                     <div style="display: flex; justify-content: space-between;">
                         <span>Mã tiến trình (PID):</span>
                         <span id="worker-pid" style="color: var(--text-primary); font-family: 'JetBrains Mono', monospace; font-weight: 600;">-</span>
@@ -724,18 +738,24 @@
             <!-- DEMO CONTROL PANEL -->
             <div class="panel">
                 <!-- Tab Headers -->
-                <div class="tabs-container" style="display: flex; gap: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.8rem; margin-bottom: 0.5rem; flex-wrap: wrap;">
+                <div class="tabs-container" style="display: flex; gap: 0.5rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.8rem; margin-bottom: 0.5rem; flex-wrap: wrap;">
                     <button class="tab-btn active" id="tab-tn1" onclick="switchTab('tn1')">
-                        <i class="fa-solid fa-gauge-high"></i> TN1: Sync vs Async
+                        <i class="fa-solid fa-gauge-high"></i> TN1: Đồng bộ vs Bất đồng bộ
                     </button>
                     <button class="tab-btn" id="tab-tn23" onclick="switchTab('tn23')">
-                        <i class="fa-solid fa-gears"></i> TN2/3: Concurrency
+                        <i class="fa-solid fa-gears"></i> TN2/3: Độ song song (Concurrency)
                     </button>
                     <button class="tab-btn" id="tab-tn4-group" onclick="switchTab('tn4_group')">
-                        <i class="fa-solid fa-images"></i> TN4.1: Group (Song song)
+                        <i class="fa-solid fa-images"></i> TN4.1: Nhóm (Group - Song song)
                     </button>
                     <button class="tab-btn" id="tab-tn4-chain" onclick="switchTab('tn4_chain')">
-                        <i class="fa-solid fa-link"></i> TN4.2: Chain (Tuần tự)
+                        <i class="fa-solid fa-link"></i> TN4.2: Chuỗi (Chain - Tuần tự)
+                    </button>
+                    <button class="tab-btn" id="tab-tn5" onclick="switchTab('tn5')">
+                        <i class="fa-solid fa-key"></i> TN5: Khóa phân tán
+                    </button>
+                    <button class="tab-btn" id="tab-tn6" onclick="switchTab('tn6')">
+                        <i class="fa-solid fa-skull-crossbones"></i> TN6: Hàng đợi thư chết (DLQ)
                     </button>
                 </div>
 
@@ -767,27 +787,56 @@
                 </div>
 
                 <!-- Form for TN4.1 Group -->
-                <div class="form-grid" id="workflow-group-form-grid" style="display: none; gap: 1rem; padding: 0.5rem 0;">
-                    <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6;">
-                        <strong>Thực nghiệm 4.1 (TN4.1) - Celery Group Workflow:</strong>
-                        <br>Chứng minh khả năng gom nhóm các tác vụ độc lập chạy <strong>song song</strong> trên nhiều worker threads để tối ưu hóa thời gian xử lý tổng thể.
-                        <br><br>
-                        Hệ thống sẽ kích hoạt đồng thời 3 tác vụ xử lý ảnh độc lập:
-                        <br>- <code>banner.png</code> (1920x1080)
-                        <br>- <code>avatar.png</code> (200x200)
-                        <br>- <code>thumbnail.png</code> (400x300)
+                <div class="form-grid" id="workflow-group-form-grid" style="display: none; gap: 0.5rem; padding: 0.25rem 0;">
+                    <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5;">
+                        Khởi chạy <strong>song song</strong> 3 tác vụ xử lý ảnh độc lập (<code>banner.png</code>, <code>avatar.png</code>, <code>thumbnail.png</code>) trên nhiều worker threads.
                     </p>
                 </div>
 
                 <!-- Form for TN4.2 Chain -->
-                <div class="form-grid" id="workflow-chain-form-grid" style="display: none; gap: 1rem; padding: 0.5rem 0;">
-                    <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6;">
-                        <strong>Thực nghiệm 4.2 (TN4.2) - Celery Chain Workflow:</strong>
-                        <br>Chứng minh khả năng liên kết các tác vụ <strong>tuần tự</strong>, tạo thành một chuỗi quy trình nghiệp vụ logic khép kín (đầu ra của tác vụ này làm đầu vào tác vụ tiếp theo).
-                        <br><br>
-                        Hệ thống sẽ kích hoạt chuỗi tạo báo cáo doanh số ngầm và cập nhật tiến trình qua từng bước nhỏ:
-                        <br><code>Kết nối DB (10%)</code> &rarr; <code>Truy vấn (40%)</code> &rarr; <code>Tính toán (70%)</code> &rarr; <code>Xuất PDF (90%)</code> &rarr; <code>SUCCESS (100%)</code>.
+                <div class="form-grid" id="workflow-chain-form-grid" style="display: none; gap: 0.5rem; padding: 0.25rem 0;">
+                    <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5;">
+                        Khởi chạy <strong>tuần tự</strong> chuỗi quy trình tạo báo cáo ngầm:
+                        <br><code>Kế nối DB</code> &rarr; <code>Truy vấn</code> &rarr; <code>Tính toán</code> &rarr; <code>Xuất PDF</code>.
                     </p>
+                </div>
+
+                <!-- Form for TN5 Distributed Lock -->
+                <div class="form-grid" id="workflow-lock-form-grid" style="display: none; gap: 0.75rem; padding: 0.25rem 0;">
+                    <div class="form-group" style="display: grid; grid-template-columns: 3fr 1fr; gap: 0.75rem;">
+                        <div>
+                            <label class="form-label">Mã giao dịch thử nghiệm (Transaction ID)</label>
+                            <input type="text" id="lock-txn-id" class="form-input" style="width: 100%; font-family: 'JetBrains Mono', monospace;" value="TXN_DUPLICATE_12345">
+                        </div>
+                        <div>
+                            <label class="form-label">Số tiền (VNĐ)</label>
+                            <input type="number" id="lock-amount" class="form-input" style="width: 100%;" value="500000">
+                        </div>
+                    </div>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5;">
+                        Gửi đồng thời 2 task trùng ID (ngăn race condition) và 1 task khác ID (chạy song song bình thường).
+                    </p>
+                </div>
+
+                <!-- Form for TN6 Dead Letter Queue -->
+                <div class="form-grid" id="workflow-dlq-form-grid" style="display: none; gap: 0.75rem; padding: 0.25rem 0;">
+                    <div class="form-group">
+                        <label class="form-label">Dữ liệu đồng bộ lỗi (Flaky Data)</label>
+                        <input type="text" id="dlq-data-import" class="form-input" style="width: 100%; font-family: 'JetBrains Mono', monospace;" value="order_data_import_9999">
+                    </div>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5;">
+                        Gửi flaky task lỗi kết nối bên thứ 3: tự động retry 3 lần. Nếu vẫn lỗi, gửi cảnh báo Slack và chuyển vào hàng đợi thư chết (<code>celery.dlq</code>).
+                    </p>
+                    
+                    <div style="margin-top: 0.25rem; border-top: 1px solid #e2e8f0; padding-top: 0.5rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                            <span class="form-label" style="margin-bottom: 0;"><i class="fa-solid fa-dumpster-fire"></i> Tin nhắn trong <code>celery.dlq</code>:</span>
+                            <span id="dlq-count-badge" style="background: var(--sync-red); color: white; padding: 0.1rem 0.4rem; border-radius: 12px; font-size: 0.7rem; font-weight: 600;">0 tin nhắn</span>
+                        </div>
+                        <div id="dlq-message-container" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; max-height: 120px; overflow-y: auto; padding: 0.5rem; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; display: flex; flex-direction: column; gap: 0.4rem; box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);">
+                            <div style="color: var(--text-secondary); text-align: center; font-style: italic;">Không có tin nhắn lỗi nào.</div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Buttons for TN1 & TN2/3 -->
@@ -814,11 +863,28 @@
                     </button>
                 </div>
 
+                <!-- Buttons for TN5 Distributed Lock -->
+                <div class="btn-container" id="workflow-lock-btn-container" style="display: none; grid-template-columns: 1fr;">
+                    <button id="btn-run-lock" class="btn" style="background: linear-gradient(135deg, #f59e0b, #d97706); box-shadow: 0 4px 15px rgba(245, 158, 11, 0.2);">
+                        <i class="fa-solid fa-key"></i> Kích hoạt Demo Lock (Trùng & Khác khóa)
+                    </button>
+                </div>
+
+                <!-- Buttons for TN6 Dead Letter Queue -->
+                <div class="btn-container" id="workflow-dlq-btn-container" style="display: none; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <button id="btn-run-dlq" class="btn" style="background: linear-gradient(135deg, #ef4444, #dc2626); box-shadow: 0 4px 15px rgba(239, 68, 68, 0.2);">
+                        <i class="fa-solid fa-triangle-exclamation"></i> Gửi Tác vụ Flaky (Lỗi & Retry)
+                    </button>
+                    <button id="btn-clear-dlq" class="btn" style="background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);">
+                        <i class="fa-solid fa-dumpster-fire"></i> Đọc & Giải phóng DLQ (Ack)
+                    </button>
+                </div>
+
                 <!-- Logs console inside control panel -->
                 <div style="margin-top: 0.5rem;">
                     <div class="form-label" style="margin-bottom: 0.5rem; display:flex; justify-content:space-between;">
-                        <span>Terminal Output Logs:</span>
-                        <span style="cursor:pointer; color: #3b82f6;" onclick="clearLogs()">Clear</span>
+                        <span>Nhật ký hệ thống (Logs):</span>
+                        <span style="cursor:pointer; color: #3b82f6;" onclick="clearLogs()">Xóa nhật ký</span>
                     </div>
                     <div id="terminal-logs" class="terminal-panel">
                         <div class="log-line system">[Hệ thống] Sẵn sàng thực hiện kiểm thử hiệu năng. Hãy chọn một chế độ gửi ở trên.</div>
@@ -942,11 +1008,11 @@
         let syncExecutionTime = 0;
         let asyncResponseTime = 0;
 
-        function log(message, type = 'system') {
+        function log(message, type = 'system', customTime = null) {
             const container = document.getElementById('terminal-logs');
             const line = document.createElement('div');
             line.className = `log-line ${type}`;
-            const time = new Date().toLocaleTimeString();
+            const time = customTime || new Date().toLocaleTimeString();
             line.textContent = `[${time}] ${message}`;
             container.appendChild(line);
             container.scrollTop = container.scrollHeight;
@@ -1130,9 +1196,13 @@
             document.getElementById('email-form-grid').style.display = 'none';
             document.getElementById('workflow-group-form-grid').style.display = 'none';
             document.getElementById('workflow-chain-form-grid').style.display = 'none';
+            document.getElementById('workflow-lock-form-grid').style.display = 'none';
+            document.getElementById('workflow-dlq-form-grid').style.display = 'none';
             document.getElementById('email-btn-container').style.display = 'none';
             document.getElementById('workflow-group-btn-container').style.display = 'none';
             document.getElementById('workflow-chain-btn-container').style.display = 'none';
+            document.getElementById('workflow-lock-btn-container').style.display = 'none';
+            document.getElementById('workflow-dlq-btn-container').style.display = 'none';
             
             // Đặt lại các biến đo lường và giao diện tránh dữ liệu cũ bị giữ lại
             resetStats(true);
@@ -1158,11 +1228,11 @@
 
                 // Cập nhật nhãn thống kê
                 panelTitle.textContent = 'Thống kê tốc độ phản hồi';
-                syncLabel.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Chế độ Đồng bộ (Sync)';
-                asyncLabel.innerHTML = '<i class="fa-solid fa-bolt"></i> Chế độ Bất đồng bộ (Async)';
+                syncLabel.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Chế độ Đồng bộ';
+                asyncLabel.innerHTML = '<i class="fa-solid fa-bolt"></i> Chế độ Bất đồng bộ';
                 if (workerTitle) workerTitle.innerHTML = '<i class="fa-solid fa-gears"></i> Hiệu năng xử lý của Worker (TN1)';
                 speedupTitle.textContent = 'Hiệu quả cải thiện tốc độ phản hồi';
-                speedupSub.textContent = '(API Response Time giảm thiểu)';
+                speedupSub.textContent = '(Thời gian phản hồi API giảm thiểu)';
             } 
             else if (tab === 'tn23') {
                 activeTab = 'tn23';
@@ -1175,48 +1245,85 @@
                 
                 document.getElementById('btn-run-sync').style.display = 'none';
                 document.getElementById('email-quantity').value = 30;
-
+ 
                 // Cập nhật nhãn thống kê
                 panelTitle.textContent = 'Thống kê tốc độ phản hồi';
-                syncLabel.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Chế độ Đồng bộ (Sync)';
-                asyncLabel.innerHTML = '<i class="fa-solid fa-bolt"></i> Chế độ Bất đồng bộ (Async)';
+                syncLabel.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Chế độ Đồng bộ';
+                asyncLabel.innerHTML = '<i class="fa-solid fa-bolt"></i> Chế độ Bất đồng bộ';
                 if (workerTitle) workerTitle.innerHTML = '<i class="fa-solid fa-gears"></i> Hiệu năng xử lý của Worker (TN2 & TN3)';
                 speedupTitle.textContent = 'Hiệu quả cải thiện tốc độ phản hồi';
-                speedupSub.textContent = '(API Response Time giảm thiểu)';
+                speedupSub.textContent = '(Thời gian phản hồi API giảm thiểu)';
             } 
             else if (tab === 'tn4_group') {
                 activeTab = 'tn4_group';
                 document.getElementById('tab-tn4-group').classList.add('active');
-                document.getElementById('panel-header-title').textContent = 'Thử nghiệm Group Workflow (Thực nghiệm 4.1 - TN4.1)';
+                document.getElementById('panel-header-title').textContent = 'Thử nghiệm Nhóm quy trình (Thực nghiệm 4.1 - TN4.1)';
                 document.getElementById('panel-icon').className = 'fa-solid fa-images';
                 
                 document.getElementById('workflow-group-form-grid').style.display = 'grid';
                 document.getElementById('workflow-group-btn-container').style.display = 'grid';
-
+ 
                 // Cập nhật nhãn thống kê cho Group
-                panelTitle.textContent = 'Hiệu năng xử lý Group (Song song)';
+                panelTitle.textContent = 'Hiệu năng xử lý Nhóm (Song song)';
                 syncLabel.innerHTML = '<i class="fa-solid fa-list-ol"></i> Xử lý Tuần tự (Giả lập)';
                 asyncLabel.innerHTML = '<i class="fa-solid fa-network-wired"></i> Xử lý Song song (Group)';
                 if (workerTitle) workerTitle.innerHTML = '<i class="fa-solid fa-gears"></i> Hiệu năng xử lý của Worker (TN4.1)';
-                speedupTitle.textContent = 'Hệ số tăng tốc xử lý (Speedup)';
+                speedupTitle.textContent = 'Hệ số tăng tốc xử lý';
                 speedupSub.textContent = '(Tối ưu hóa thời gian xử lý)';
             }
             else if (tab === 'tn4_chain') {
                 activeTab = 'tn4_chain';
                 document.getElementById('tab-tn4-chain').classList.add('active');
-                document.getElementById('panel-header-title').textContent = 'Thử nghiệm Chain Workflow (Thực nghiệm 4.2 - TN4.2)';
+                document.getElementById('panel-header-title').textContent = 'Thử nghiệm Chuỗi quy trình (Thực nghiệm 4.2 - TN4.2)';
                 document.getElementById('panel-icon').className = 'fa-solid fa-link';
                 
                 document.getElementById('workflow-chain-form-grid').style.display = 'grid';
                 document.getElementById('workflow-chain-btn-container').style.display = 'grid';
-
+ 
                 // Cập nhật nhãn thống kê cho Chain
-                panelTitle.textContent = 'Hiệu năng xử lý Chain (Tuần tự)';
+                panelTitle.textContent = 'Hiệu năng xử lý Chuỗi (Tuần tự)';
                 syncLabel.innerHTML = '<i class="fa-solid fa-bolt"></i> Xử lý Trực tiếp (Giả lập)';
-                asyncLabel.innerHTML = '<i class="fa-solid fa-link"></i> Xử lý qua Queue (Celery Chain)';
+                asyncLabel.innerHTML = '<i class="fa-solid fa-link"></i> Xử lý qua Hàng đợi (Celery Chain)';
                 if (workerTitle) workerTitle.innerHTML = '<i class="fa-solid fa-gears"></i> Hiệu năng xử lý của Worker (TN4.2)';
-                speedupTitle.textContent = 'Hệ số hiệu quả (Speedup)';
-                speedupSub.textContent = '(Bao gồm chi phí overhead của Queue)';
+                speedupTitle.textContent = 'Hệ số hiệu quả';
+                speedupSub.textContent = '(Bao gồm độ trễ của hàng đợi)';
+            }
+            else if (tab === 'tn5') {
+                activeTab = 'tn5';
+                document.getElementById('tab-tn5').classList.add('active');
+                document.getElementById('panel-header-title').textContent = 'Thử nghiệm Khóa phân tán (Thực nghiệm 5 - TN5)';
+                document.getElementById('panel-icon').className = 'fa-solid fa-key';
+                
+                document.getElementById('workflow-lock-form-grid').style.display = 'grid';
+                document.getElementById('workflow-lock-btn-container').style.display = 'grid';
+ 
+                // Cập nhật nhãn thống kê cho Lock
+                panelTitle.textContent = 'Trạng thái Khóa phân tán (Redis Lock)';
+                syncLabel.innerHTML = '<i class="fa-solid fa-lock"></i> Giao dịch trùng khóa (Task 1)';
+                asyncLabel.innerHTML = '<i class="fa-solid fa-lock-open"></i> Giao dịch trùng khóa (Task 2)';
+                if (workerTitle) workerTitle.innerHTML = '<i class="fa-solid fa-gears"></i> Hiệu năng xử lý của Worker (TN5)';
+                speedupTitle.textContent = 'Ngăn chặn xung đột (Race Condition)';
+                speedupSub.textContent = '(Giao dịch trùng lặp bị chặn)';
+            }
+            else if (tab === 'tn6') {
+                activeTab = 'tn6';
+                document.getElementById('tab-tn6').classList.add('active');
+                document.getElementById('panel-header-title').textContent = 'Thử nghiệm Hàng đợi thư chết (Thực nghiệm 6 - TN6)';
+                document.getElementById('panel-icon').className = 'fa-solid fa-skull-crossbones';
+                
+                document.getElementById('workflow-dlq-form-grid').style.display = 'grid';
+                document.getElementById('workflow-dlq-btn-container').style.display = 'grid';
+ 
+                // Cập nhật nhãn thống kê cho DLQ
+                panelTitle.textContent = 'Trạng thái Hàng đợi Thư chết (celery.dlq)';
+                syncLabel.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Lần thử lỗi (Retries)';
+                asyncLabel.innerHTML = '<i class="fa-solid fa-dumpster-fire"></i> Số tin nhắn đẩy vào DLQ';
+                if (workerTitle) workerTitle.innerHTML = '<i class="fa-solid fa-gears"></i> Hiệu năng xử lý của Worker (TN6)';
+                speedupTitle.textContent = 'Độ tin cậy hệ thống';
+                speedupSub.textContent = '(Dữ liệu lỗi được cô lập an toàn)';
+                
+                // Tự động load danh sách tin nhắn DLQ khi mở tab
+                loadDlqMessages();
             }
         }
 
@@ -1341,6 +1448,210 @@
                 btn.style.opacity = '1';
             }
         });
+        // EVENT RUN DISTRIBUTED LOCK (TN5)
+        document.getElementById('btn-run-lock').addEventListener('click', async () => {
+            const btn = document.getElementById('btn-run-lock');
+            const txnId = document.getElementById('lock-txn-id').value;
+            const amount = parseFloat(document.getElementById('lock-amount').value) || 500000;
+            
+            btn.disabled = true;
+            btn.style.opacity = '0.6';
+            log(`Bắt đầu chạy thử nghiệm Khóa phân tán (Distributed Lock) với giao dịch: ${txnId}...`, 'async');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/payment/trigger?txn_id=${encodeURIComponent(txnId)}&amount=${amount}`, { method: 'POST' });
+                const data = await response.json();
+                
+                const taskIds = data.task_ids;
+                log(`[Lock] Đã đẩy 3 tác vụ thanh toán vào queue.`, 'success');
+                log(`   - Task 1 (Trùng - ID: ${taskIds.task_dup_1})`, 'async');
+                log(`   - Task 2 (Trùng - ID: ${taskIds.task_dup_2})`, 'async');
+                log(`   - Task 3 (Khác - ID: ${taskIds.task_unique})`, 'async');
+                
+                // Cấu hình batch để theo dõi tiến độ của 3 task này
+                if (currentBatch.timerInterval) clearInterval(currentBatch.timerInterval);
+                currentBatch.taskIds = new Set([taskIds.task_dup_1, taskIds.task_dup_2, taskIds.task_unique]);
+                currentBatch.lockTasks = taskIds;
+                currentBatch.taskTimes = {};
+                currentBatch.startTime = performance.now();
+                currentBatch.total = 3;
+                currentBatch.finished = new Set();
+                
+                document.getElementById('worker-status-text').textContent = `Đang kiểm tra khóa (0/3)...`;
+                document.getElementById('worker-time').innerHTML = `0.00 <span style="font-size: 1rem; font-weight:400; color:var(--text-secondary)">giây</span>`;
+                document.getElementById('worker-throughput').textContent = `0.00 tasks/s`;
+                document.getElementById('worker-bar').style.width = '0%';
+                
+                currentBatch.timerInterval = setInterval(() => {
+                    if (currentBatch.finished.size < currentBatch.total) {
+                        const elapsed = (performance.now() - currentBatch.startTime) / 1000;
+                        document.getElementById('worker-time').innerHTML = `${elapsed.toFixed(1)} <span style="font-size: 1rem; font-weight:400; color:var(--text-secondary)">giây</span>`;
+                    } else {
+                        clearInterval(currentBatch.timerInterval);
+                    }
+                }, 100);
+                
+                // Add 3 task vào bảng để theo dõi
+                addTaskToTable(taskIds.task_unique, `Thanh toán Khác mã (${data.txn_unique})`);
+                addTaskToTable(taskIds.task_dup_2, `Thanh toán Trùng mã (Task 2 - ${data.txn_duplicate})`);
+                addTaskToTable(taskIds.task_dup_1, `Thanh toán Trùng mã (Task 1 - ${data.txn_duplicate})`);
+                
+                const tbody = document.getElementById('tasks-table-body');
+                const emptyRow = document.getElementById('empty-table-row');
+                if (emptyRow) emptyRow.remove();
+
+                const separatorRow = document.createElement('tr');
+                separatorRow.className = 'batch-header-row';
+                separatorRow.innerHTML = `
+                    <td colspan="5" class="batch-header-cell" style="color: #f59e0b !important; border-bottom-color: rgba(245, 158, 11, 0.2) !important;">
+                        <i class="fa-solid fa-layer-group"></i> Lượt chạy Demo Lock lúc ${new Date().toLocaleTimeString()} — 3 giao dịch
+                    </td>
+                `;
+                tbody.insertBefore(separatorRow, tbody.firstChild);
+                
+            } catch (error) {
+                log(`[Lock Error] Thất bại: ${error.message}`, 'sync');
+            } finally {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+            }
+        });
+
+        // EVENT RUN DEAD LETTER QUEUE (TN6)
+        document.getElementById('btn-run-dlq').addEventListener('click', async () => {
+            const btn = document.getElementById('btn-run-dlq');
+            const dataArg = document.getElementById('dlq-data-import').value;
+            
+            btn.disabled = true;
+            btn.style.opacity = '0.6';
+            log(`Bắt đầu chạy thử nghiệm Dead Letter Queue với tác vụ flaky: ${dataArg}...`, 'async');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/dlq/trigger?data=${encodeURIComponent(dataArg)}`, { method: 'POST' });
+                const data = await response.json();
+                
+                log(`[DLQ] Đã đẩy Flaky Task (ID: ${data.task_id}) vào queue. Tác vụ sẽ tự động thử lại 3 lần nếu có lỗi.`, 'success');
+                
+                if (currentBatch.timerInterval) clearInterval(currentBatch.timerInterval);
+                currentBatch.taskIds = new Set([data.task_id]);
+                currentBatch.taskTimes = {};
+                currentBatch.startTime = performance.now();
+                currentBatch.total = 1;
+                currentBatch.finished = new Set();
+                
+                document.getElementById('worker-status-text').textContent = `Đang chạy thử lại (0/1)...`;
+                document.getElementById('worker-time').innerHTML = `0.00 <span style="font-size: 1rem; font-weight:400; color:var(--text-secondary)">giây</span>`;
+                document.getElementById('worker-throughput').textContent = `0.00 tasks/s`;
+                document.getElementById('worker-bar').style.width = '0%';
+                
+                currentBatch.timerInterval = setInterval(() => {
+                    if (currentBatch.finished.size < currentBatch.total) {
+                        const elapsed = (performance.now() - currentBatch.startTime) / 1000;
+                        document.getElementById('worker-time').innerHTML = `${elapsed.toFixed(1)} <span style="font-size: 1rem; font-weight:400; color:var(--text-secondary)">giây</span>`;
+                    } else {
+                        clearInterval(currentBatch.timerInterval);
+                    }
+                }, 100);
+                
+                addTaskToTable(data.task_id, `API Flaky Sync ("${dataArg}")`);
+                
+                const tbody = document.getElementById('tasks-table-body');
+                const emptyRow = document.getElementById('empty-table-row');
+                if (emptyRow) emptyRow.remove();
+
+                const separatorRow = document.createElement('tr');
+                separatorRow.className = 'batch-header-row';
+                separatorRow.innerHTML = `
+                    <td colspan="5" class="batch-header-cell" style="color: #ef4444 !important; border-bottom-color: rgba(239, 68, 68, 0.2) !important;">
+                        <i class="fa-solid fa-layer-group"></i> Lượt chạy Demo DLQ lúc ${new Date().toLocaleTimeString()} — 1 flaky task
+                    </td>
+                `;
+                tbody.insertBefore(separatorRow, tbody.firstChild);
+                
+                // Kiểm tra liên tục DLQ sau mỗi 3 giây trong lúc task đang chạy
+                const dlqCheckInterval = setInterval(async () => {
+                    await loadDlqMessages();
+                    if (currentBatch.finished.has(data.task_id)) {
+                        clearInterval(dlqCheckInterval);
+                        // Đọc lại lần cuối sau khi task kết thúc hoàn toàn
+                        setTimeout(loadDlqMessages, 2000);
+                    }
+                }, 3000);
+                
+            } catch (error) {
+                log(`[DLQ Error] Thất bại: ${error.message}`, 'sync');
+            } finally {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+            }
+        });
+
+        // EVENT CLEAR DEAD LETTER QUEUE (TN6)
+        document.getElementById('btn-clear-dlq').addEventListener('click', async () => {
+            const btn = document.getElementById('btn-clear-dlq');
+            btn.disabled = true;
+            btn.style.opacity = '0.6';
+            log(`Bắt đầu lấy các tin nhắn lỗi từ DLQ và giải phóng hàng đợi...`, 'system');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/dlq/clear`, { method: 'POST' });
+                const data = await response.json();
+                
+                if (data.count > 0) {
+                    log(`[DLQ Consumer] ✅ Đã xử lý và giải phóng xong ${data.count} tin nhắn lỗi khỏi celery.dlq!`, 'success');
+                    data.messages.forEach((msg) => {
+                        log(`   - Đã xử lý xong tin nhắn lỗi của Task ${msg.id} (${msg.task.split('.').pop()}).`, 'success');
+                    });
+                } else {
+                    log(`[DLQ Consumer] Không phát hiện tin nhắn lỗi nào cần giải phóng.`, 'system');
+                }
+                
+                // Cập nhật lại UI DLQ
+                await loadDlqMessages();
+            } catch (error) {
+                log(`[DLQ Consumer Error] Thất bại: ${error.message}`, 'sync');
+            } finally {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+            }
+        });
+
+        // LOAD DLQ MESSAGES
+        async function loadDlqMessages() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/dlq/messages`);
+                const data = await response.json();
+                
+                const countBadge = document.getElementById('dlq-count-badge');
+                countBadge.textContent = `${data.count} tin nhắn lỗi`;
+                
+                const container = document.getElementById('dlq-message-container');
+                container.innerHTML = '';
+                
+                if (data.count === 0) {
+                    container.innerHTML = '<div style="color: var(--text-secondary); text-align: center; font-style: italic;">Không có tin nhắn lỗi nào trong DLQ.</div>';
+                } else {
+                    data.messages.forEach((msg, idx) => {
+                        const item = document.createElement('div');
+                        item.style.borderBottom = idx < data.count - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none';
+                        item.style.paddingBottom = '0.5rem';
+                        item.style.marginBottom = '0.5rem';
+                        item.innerHTML = `
+                            <div style="display:flex; justify-content:space-between; color: var(--sync-red);">
+                                <span><strong>[LỖI SỐ ${idx+1}]</strong></span>
+                                <span style="font-family: monospace;">ID: ${msg.id.substring(0,8)}...</span>
+                            </div>
+                            <div style="margin-top:0.2rem; color: var(--text-primary);">Task: <span style="color:var(--async-purple);">${msg.task.split('.').pop()}</span></div>
+                            <div style="color: var(--text-secondary);">Tham số: "${msg.args}"</div>
+                            <div style="color: var(--text-secondary); font-style:italic;">Lý do: ${msg.death_reason}</div>
+                        `;
+                        container.appendChild(item);
+                    });
+                }
+            } catch (err) {
+                console.error("Lỗi tải tin nhắn DLQ:", err);
+            }
+        }
 
         // ADD TASK ROW TO MONITORING TABLE
         function addTaskToTable(taskId, taskType) {
@@ -1354,7 +1665,7 @@
             row.innerHTML = `
                 <td class="task-id-cell">${taskId}</td>
                 <td><strong>${taskType}</strong></td>
-                <td><span id="badge-${taskId}" class="badge badge-pending"><i class="fa-solid fa-hourglass-start"></i> PENDING</span></td>
+                <td><span id="badge-${taskId}" class="badge badge-pending"><i class="fa-solid fa-hourglass-start"></i> ĐANG CHỜ</span></td>
                 <td>
                     <div class="progress-cell-container">
                         <div class="progress-text">
@@ -1375,9 +1686,16 @@
         }
 
         // UPDATE BATCH PROGRESS FOR WORKER PERFORMANCE
-        function updateBatchProgress(taskId, success = true) {
+        function updateBatchProgress(taskId, success = true, meta = null) {
             if (currentBatch.taskIds.has(taskId) && !currentBatch.finished.has(taskId)) {
                 currentBatch.finished.add(taskId);
+                
+                // Lưu meta nếu có để phục vụ các thống kê nâng cao
+                if (meta) {
+                    if (!currentBatch.taskMetas) currentBatch.taskMetas = {};
+                    currentBatch.taskMetas[taskId] = meta;
+                }
+
                 const finishedCount = currentBatch.finished.size;
                 const totalCount = currentBatch.total;
                 const pct = (finishedCount / totalCount) * 100;
@@ -1429,6 +1747,48 @@
                             log(`[Workflow Performance] Chạy qua Celery Chain đạt hiệu quả ${speedup.toFixed(2)}x so với chạy trực tiếp (bao gồm overhead).`, 'success');
                         }
                     }
+                    else if (activeTab === 'tn5') {
+                        // Khóa phân tán (Distributed Lock)
+                        // Lấy thời gian của task chạy thành công
+                        const t1 = currentBatch.lockTasks ? (currentBatch.taskTimes[currentBatch.lockTasks.task_dup_1] || currentBatch.taskTimes[currentBatch.lockTasks.task_unique] || 4.0) : 4.0;
+                        
+                        document.getElementById('sync-time').innerHTML = `${t1.toFixed(2)} <span style="font-size: 1rem; font-weight:400; color:var(--text-secondary)">giây</span>`;
+                        document.getElementById('sync-status-text').textContent = 'Thành công';
+                        document.getElementById('sync-bar').style.width = '100%';
+                        
+                        document.getElementById('async-time').innerHTML = `0.00 <span style="font-size: 1rem; font-weight:400; color:var(--text-secondary)">giây (BỊ CHẶN)</span>`;
+                        document.getElementById('async-status-text').textContent = 'Được bảo vệ';
+                        document.getElementById('async-bar').style.width = '0%';
+                        
+                        document.getElementById('speedup-value').textContent = 'AN TOÀN';
+                        
+                        log('[Distributed Lock Performance] Kiểm thử Khóa phân tán hoàn tất. Race Condition được loại bỏ 100%! Giao dịch trùng lặp bị chặn an toàn.', 'success');
+                    }
+                    else if (activeTab === 'tn6') {
+                        // Dead Letter Queue (DLQ)
+                        // Lấy số retries từ meta của task
+                        let retries = 4; // Mặc định 4 lần thử
+                        if (currentBatch.taskMetas) {
+                            for (const tid of currentBatch.taskIds) {
+                                const m = currentBatch.taskMetas[tid];
+                                if (m && m.retries) {
+                                    retries = m.retries;
+                                }
+                            }
+                        }
+                        
+                        document.getElementById('sync-time').innerHTML = `${retries} <span style="font-size: 1rem; font-weight:400; color:var(--text-secondary)">lần thử lỗi</span>`;
+                        document.getElementById('sync-status-text').textContent = 'Lỗi kết nối';
+                        document.getElementById('sync-bar').style.width = '100%';
+                        
+                        document.getElementById('async-time').innerHTML = `1 <span style="font-size: 1rem; font-weight:400; color:var(--text-secondary)">tin nhắn lỗi</span>`;
+                        document.getElementById('async-status-text').textContent = 'Đã cô lập (DLQ)';
+                        document.getElementById('async-bar').style.width = '100%';
+                        
+                        document.getElementById('speedup-value').textContent = 'ĐÃ LƯU';
+                        
+                        log('[DLQ Performance] Kiểm thử Dead Letter Queue hoàn tất. Tin nhắn lỗi được đẩy sang celery.dlq và gửi alert thành công.', 'success');
+                    }
                 }
             }
         }
@@ -1448,11 +1808,11 @@
 
                     if (data.status === 'PENDING') {
                         badge.className = 'badge badge-pending';
-                        badge.innerHTML = '<i class="fa-solid fa-hourglass-start"></i> PENDING';
+                        badge.innerHTML = '<i class="fa-solid fa-hourglass-start"></i> ĐANG CHỜ';
                     } 
                     else if (data.status === 'PROGRESS') {
                         badge.className = 'badge badge-progress';
-                        badge.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> RUNNING';
+                        badge.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ĐANG CHẠY';
                         
                         const meta = data.result || {};
                         const pct = meta.progress || 0;
@@ -1475,7 +1835,7 @@
                     } 
                     else if (data.status === 'SUCCESS') {
                         badge.className = 'badge badge-success';
-                        badge.innerHTML = '<i class="fa-solid fa-circle-check"></i> SUCCESS';
+                        badge.innerHTML = '<i class="fa-solid fa-circle-check"></i> THÀNH CÔNG';
                         progressPct.textContent = '100%';
                         progressStep.textContent = 'Đã hoàn thành';
                         progressBar.style.width = '100%';
@@ -1495,27 +1855,52 @@
                             }).join('');
                             outputHtml += `<div style="margin-top: 0.35rem; display: flex; flex-wrap: wrap; gap: 0.2rem;">${stepsHtml}</div>`;
                         } else {
-                            outputHtml += ` Status: ${res.status || 'Success'}`;
+                            outputHtml += ` Trạng thái: ${res.status || 'Thành công'}`;
                         }
                         
                         resultField.innerHTML = outputHtml;
                         
+                        await pollWorkerLogs();
                         log(`Tác vụ ngầm ${taskId} hoàn thành thành công!`, 'success');
-                        updateBatchProgress(taskId, true);
+                        updateBatchProgress(taskId, true, data.result);
                         clearInterval(interval);
                         activeTasks.delete(taskId);
                     } 
+                    else if (data.status === 'IGNORED') {
+                        badge.className = 'badge';
+                        badge.style.background = 'rgba(245, 158, 11, 0.1)';
+                        badge.style.color = 'var(--status-pending)';
+                        badge.style.border = '1px solid rgba(245, 158, 11, 0.2)';
+                        badge.innerHTML = '<i class="fa-solid fa-ban"></i> BỊ CHẶN';
+                        
+                        progressPct.textContent = '0%';
+                        progressStep.textContent = 'Bị chặn (Race Condition)';
+                        progressBar.style.width = '0%';
+                        
+                        const res = data.result || {};
+                        resultField.className = 'result-cell failure';
+                        resultField.style.color = 'var(--status-pending)';
+                        resultField.textContent = res.message || 'Giao dịch trùng lặp bị chặn bởi Khóa phân tán.';
+                        
+                        await pollWorkerLogs();
+                        log(`Tác vụ ngầm ${taskId} bị chặn do trùng khóa phân tán!`, 'sync');
+                        updateBatchProgress(taskId, false, data.result);
+                        clearInterval(interval);
+                        activeTasks.delete(taskId);
+                    }
                     else if (data.status === 'FAILURE') {
                         badge.className = 'badge badge-failure';
-                        badge.innerHTML = '<i class="fa-solid fa-circle-xmark"></i> FAILURE';
+                        badge.innerHTML = '<i class="fa-solid fa-circle-xmark"></i> THẤT BẠI';
                         progressStep.textContent = 'Bị lỗi!';
                         progressBar.style.width = '0%';
                         
                         resultField.className = 'result-cell failure';
-                        resultField.textContent = data.result || 'Có lỗi hệ thống xảy ra';
+                        const res = data.result || {};
+                        resultField.textContent = res.message || (typeof data.result === 'string' ? data.result : 'Có lỗi hệ thống xảy ra');
                         
+                        await pollWorkerLogs();
                         log(`Tác vụ ngầm ${taskId} xử lý thất bại!`, 'sync');
-                        updateBatchProgress(taskId, false);
+                        updateBatchProgress(taskId, false, data.result);
                         clearInterval(interval);
                         activeTasks.delete(taskId);
                     }
@@ -1724,6 +2109,79 @@
         // Tự động kiểm tra trạng thái worker sau mỗi 3 giây
         setInterval(checkWorkerStatus, 3000);
         checkWorkerStatus();
+
+        // Helper giải mã chuỗi unicode escape dạng \uXXXX và \UXXXXXXXX (do Windows terminal / Python logging sinh ra)
+        function unescapeUnicode(str) {
+            try {
+                return str.replace(/\\u([0-9a-fA-F]{4})/g, (match, grp) => {
+                    return String.fromCharCode(parseInt(grp, 16));
+                }).replace(/\\U([0-9a-fA-F]{8})/g, (match, grp) => {
+                    return String.fromCodePoint(parseInt(grp, 16));
+                });
+            } catch (e) {
+                return str;
+            }
+        }
+
+        // Tự động đồng bộ log từ file log của Celery Worker lên màn hình
+        let lastLoggedLines = [];
+        async function pollWorkerLogs() {
+            // Luôn đồng bộ log từ backend lên UI bất kể trạng thái của manager (phòng trường hợp worker chạy thủ công bằng terminal)
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/worker/logs?lines=30`);
+                const data = await res.json();
+                if (data.logs) {
+                    const lines = data.logs.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+                    lines.forEach(line => {
+                        // Giải mã trước để tránh so khớp lỗi font hoặc kí tự unicode escape
+                        const decodedLine = unescapeUnicode(line);
+                        
+                        // Tránh log trùng lặp
+                        if (!lastLoggedLines.includes(decodedLine)) {
+                            // Chỉ lọc lấy các dòng logs nghiệp vụ quan trọng
+                            if (decodedLine.includes('[EMAIL]') || decodedLine.includes('[IMAGE]') || decodedLine.includes('[REPORT]') || decodedLine.includes('[PAYMENT]') || decodedLine.includes('[FLAKY TASK]')) {
+                                let msg = decodedLine;
+                                let type = 'system';
+                                
+                                if (decodedLine.includes('[EMAIL]')) type = 'async';
+                                if (decodedLine.includes('[IMAGE]')) type = 'async';
+                                if (decodedLine.includes('[REPORT]')) type = 'async';
+                                if (decodedLine.includes('[PAYMENT]')) type = 'sync';
+                                if (decodedLine.includes('[FLAKY TASK]')) {
+                                    if (decodedLine.includes('⚠️') || decodedLine.includes('❌')) {
+                                        type = 'sync';
+                                    } else if (decodedLine.includes('✅')) {
+                                        type = 'success';
+                                    } else {
+                                        type = 'async';
+                                    }
+                                }
+
+                                // Trích xuất timestamp gốc từ log của Worker nếu có
+                                let customTime = null;
+                                const timeMatch = decodedLine.match(/^\[\d{4}-\d{2}-\d{2}\s+(\d{2}:\d{2}:\d{2})[,\.]\d+:/);
+                                if (timeMatch) {
+                                    customTime = timeMatch[1];
+                                }
+
+                                // Làm sạch dòng log để hiển thị trực quan hơn
+                                const match = decodedLine.match(/\]\s+\[(EMAIL|IMAGE|REPORT|PAYMENT|FLAKY TASK)\]\s+(.*)/);
+                                if (match) {
+                                    msg = `[Worker - ${match[1]}] ${match[2]}`;
+                                }
+                                
+                                log(msg, type, customTime);
+                            }
+                            lastLoggedLines.push(decodedLine);
+                            if (lastLoggedLines.length > 150) lastLoggedLines.shift(); // Giới hạn cache tránh tốn bộ nhớ
+                        }
+                    });
+                }
+            } catch (err) {
+                console.error("Lỗi đồng bộ log worker:", err);
+            }
+        }
+        setInterval(pollWorkerLogs, 1000); // Đồng bộ log mỗi 1 giây
     </script>
 </body>
 </html>

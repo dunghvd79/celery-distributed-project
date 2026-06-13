@@ -58,7 +58,12 @@ def process_flaky_task(self, data: str) -> str:
                         "id": self.request.id,
                         "task": self.name,
                     }
-                    payload = self.request.args
+                    # Đóng gói đúng chuẩn Celery task message: (args, kwargs, embed_metadata)
+                    payload = (
+                        self.request.args or (),
+                        self.request.kwargs or {},
+                        {"callbacks": None, "errbacks": None, "chain": None, "chord": None}
+                    )
                     
                     producer.publish(
                         payload,
@@ -70,5 +75,18 @@ def process_flaky_task(self, data: str) -> str:
             except Exception as e:
                 logger.error(f"[FLAKY TASK] ❌ Lỗi khi tự đẩy tin nhắn lỗi vào DLQ: {e}")
             
+            # Cập nhật trạng thái FAILURE kèm theo thông tin lỗi chi tiết để hiển thị trên Dashboard
+            # Cần bổ sung 'exc_type' và 'exc_message' để tránh lỗi giải mã (KeyError: 'exc_type') ở client side của Celery
+            self.update_state(
+                state="FAILURE",
+                meta={
+                    "exc_type": type(exc).__name__,
+                    "exc_message": f"Thất bại hoàn toàn sau {self.request.retries + 1} lần thử. Đã chuyển sang hàng đợi thư chết (celery.dlq).",
+                    "error": str(exc),
+                    "retries": self.request.retries + 1,
+                    "in_dlq": True,
+                    "message": f"Thất bại hoàn toàn sau {self.request.retries + 1} lần thử. Đã chuyển sang hàng đợi thư chết (celery.dlq)."
+                }
+            )
             # 3. Bỏ qua task này ở phía Celery (để tránh lưu kết quả lỗi đè lên Redis)
             raise Ignore()

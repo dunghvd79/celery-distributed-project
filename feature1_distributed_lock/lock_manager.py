@@ -111,6 +111,15 @@ def lock_task(key_format: str, expire_seconds: int = 30, retry_on_fail: bool = F
                 else:
                     # Bỏ qua tác vụ trùng lặp để tránh Race Condition (State: IGNORED)
                     logger.info(f"Task {task_name}[{task_id}] tự động hủy/bỏ qua (Ignore) để bảo vệ dữ liệu.")
+                    if task_self:
+                        task_self.update_state(
+                            state="IGNORED",
+                            meta={
+                                "status": "ignored",
+                                "reason": "lock_failed",
+                                "message": "Giao dịch trùng lặp bị chặn bởi Khóa phân tán (Redis Lock) để ngăn Race Condition."
+                            }
+                        )
                     raise Ignore()
 
             try:
